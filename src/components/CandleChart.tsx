@@ -1,4 +1,6 @@
 import { useEffect, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import {
   createChart,
   CandlestickSeries,
@@ -7,8 +9,9 @@ import {
   type ISeriesApi,
   type UTCTimestamp,
 } from "lightweight-charts";
-import { chartTheme, fetchOHLCV, simulatedOHLCV, type Candle } from "@/lib/chart-theme";
+import { chartTheme, simulatedOHLCV, type Candle } from "@/lib/chart-theme";
 import { getStock } from "@/lib/stocks";
+import { getFinnhubKey, getOHLCV } from "@/lib/market-data.functions";
 
 interface Props {
   ticker: string;
@@ -21,6 +24,20 @@ export function CandleChart({ ticker, height = 400 }: Props) {
   const candleRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const volRef = useRef<ISeriesApi<"Histogram"> | null>(null);
   const lastRef = useRef<Candle | null>(null);
+
+  const fetchKey = useServerFn(getFinnhubKey);
+  const fetchOHLCV = useServerFn(getOHLCV);
+
+  const { data: finnhubKey } = useQuery({
+    queryKey: ["finnhubKey"],
+    queryFn: () => fetchKey(),
+    staleTime: Infinity,
+  });
+  const { data: ohlcvRows } = useQuery({
+    queryKey: ["ohlcv", ticker],
+    queryFn: () => fetchOHLCV({ data: { ticker, market: getStock(ticker)?.market ?? "IN" } }),
+    staleTime: 5 * 60 * 1000,
+  });
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -76,8 +93,8 @@ export function CandleChart({ ticker, height = 400 }: Props) {
       chart.timeScale().fitContent();
 
       // Try to upgrade to real data
-      const rows = await fetchOHLCV(ticker, stock.market);
-      if (cancelled || !rows.length) return;
+      const rows = ohlcvRows;
+      if (cancelled || !rows?.length) return;
       candle.setData(rows);
       vol.setData(
         rows.map((c) => ({
@@ -91,9 +108,7 @@ export function CandleChart({ ticker, height = 400 }: Props) {
     })();
 
     // Real-time updates
-    const finnhubKey = import.meta.env.VITE_FINNHUB_API_KEY;
-    const useWs =
-      stock.market === "US" && finnhubKey && finnhubKey !== "your_finnhub_api_key_here";
+    const useWs = stock.market === "US" && !!finnhubKey && finnhubKey !== "your_finnhub_api_key_here";
 
     const applyTick = (price: number) => {
       const last = lastRef.current;
