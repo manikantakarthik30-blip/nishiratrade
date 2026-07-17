@@ -134,9 +134,14 @@ function StockPanel({ ticker, onClose }: { ticker: string; onClose: () => void }
         <Card className="glass mt-6 p-2">
           <CandleChart ticker={s.ticker} height={260} />
         </Card>
-        <Button asChild size="lg" className="mt-6 animate-pulse-glow">
-          <Link to="/trade/$ticker" params={{ ticker: s.ticker }}>Trade {s.ticker}</Link>
-        </Button>
+        <div className="mt-6 flex gap-2">
+          <Button asChild size="lg" className="flex-1 animate-pulse-glow">
+            <Link to="/trade/$ticker" params={{ ticker: s.ticker }}>Trade {s.ticker}</Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link to="/chart" search={{ symbol: s.ticker }}>Full Chart</Link>
+          </Button>
+        </div>
       </motion.aside>
     </>
   );
