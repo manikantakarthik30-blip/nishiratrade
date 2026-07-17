@@ -56,37 +56,47 @@ function MarketsPage() {
         </Tabs>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {display.map((s) => (
           <motion.div
             key={s.ticker}
             layout
             whileHover={{ y: -4 }}
-            onClick={() => setSelected(s.ticker)}
-            className="glass cursor-pointer rounded-xl p-4 transition-shadow hover:shadow-[var(--shadow-glow)]"
+            className="glass rounded-xl p-4 transition-shadow hover:shadow-[var(--shadow-glow)]"
           >
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="font-bold">{s.ticker}</div>
-                <div className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{s.name}</div>
-              </div>
-              <span className="rounded-full border border-border/50 px-2 py-0.5 text-[10px] uppercase text-muted-foreground">
-                {s.market}
-              </span>
-            </div>
-            <div className="mt-3 flex items-end justify-between gap-2">
-              <div>
-                <div className="font-display text-xl font-bold">{formatMoney(s.price, s.currency)}</div>
-                <div className={`mt-0.5 flex items-center gap-1 text-sm font-medium ${s.pct >= 0 ? "text-success" : "text-destructive"}`}>
-                  {s.pct >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                  {s.pct.toFixed(2)}%
+            <div onClick={() => setSelected(s.ticker)} className="cursor-pointer">
+              <div className="flex items-start justify-between">
+                <div className="min-w-0">
+                  <div className="truncate font-bold">{s.name}</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">{s.ticker}</div>
                 </div>
+                <span className="shrink-0 rounded-full border border-border/50 px-2 py-0.5 text-[10px] uppercase text-muted-foreground">
+                  {s.market}
+                </span>
               </div>
-              <Sparkline ticker={s.ticker} />
+              <div className="mt-3 flex items-end justify-between gap-2">
+                <div>
+                  <div className="font-display text-xl font-bold tabular-nums">{formatMoney(s.price, s.currency)}</div>
+                  <div className={`mt-0.5 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-semibold ${s.pct >= 0 ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
+                    {s.pct >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                    {s.pct.toFixed(2)}%
+                  </div>
+                </div>
+                <Sparkline ticker={s.ticker} />
+              </div>
+            </div>
+            <div className="mt-3 flex gap-2">
+              <Button asChild size="sm" className="flex-1">
+                <Link to="/trade/$ticker" params={{ ticker: s.ticker }}>Trade</Link>
+              </Button>
+              <Button asChild size="sm" variant="outline" className="flex-1">
+                <Link to="/chart" search={{ symbol: s.ticker }}>Chart</Link>
+              </Button>
             </div>
           </motion.div>
         ))}
       </div>
+
 
       {/* Detail side panel */}
       <AnimatePresence>
