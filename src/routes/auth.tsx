@@ -81,7 +81,7 @@ function AuthPage() {
 
       <Link to="/" className="absolute top-6 left-6 flex items-center gap-2 z-10">
         <Rocket className="h-5 w-5 text-primary" />
-        <span className="font-display font-bold">CosmicTrade</span>
+        <span className="font-display font-bold tracking-tight">NISHIRA<span className="text-primary">.TRADE</span></span>
       </Link>
 
       <motion.div
@@ -95,8 +95,8 @@ function AuthPage() {
         </h1>
         <p className="mt-1 text-center text-sm text-muted-foreground">
           {mode === "signup"
-            ? "Start with ₹1,00,000 and $10,000 in virtual capital."
-            : "Sign in to your cosmic portfolio."}
+            ? "Practice the market. Risk nothing. Learn everything."
+            : "Welcome back to NISHIRA.TRADE."}
         </p>
 
         <Tabs

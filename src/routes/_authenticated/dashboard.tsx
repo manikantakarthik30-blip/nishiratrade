@@ -76,7 +76,7 @@ function Dashboard() {
         <h1 className="font-display text-3xl font-bold">
           Welcome, <span className="text-primary">{profile?.username ?? "trader"}</span>
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">Here's your cosmic portfolio at a glance.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Welcome to NISHIRA.TRADE — your portfolio at a glance.</p>
       </motion.div>
 
       {/* Balance cards */}
