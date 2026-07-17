@@ -41,20 +41,21 @@ function MarketsPage() {
       </div>
 
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="relative max-w-md flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search RELIANCE, AAPL, TSLA..." className="pl-9" />
-        </div>
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
-          <TabsList>
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)} className="-mx-4 overflow-x-auto px-4 md:mx-0 md:overflow-visible md:px-0">
+          <TabsList className="w-max">
             <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="IN">Indian</TabsTrigger>
-            <TabsTrigger value="US">US</TabsTrigger>
-            <TabsTrigger value="gainers">Top Gainers</TabsTrigger>
-            <TabsTrigger value="losers">Top Losers</TabsTrigger>
+            <TabsTrigger value="IN">🇮🇳 Indian</TabsTrigger>
+            <TabsTrigger value="US">🇺🇸 US</TabsTrigger>
+            <TabsTrigger value="gainers">📈 Gainers</TabsTrigger>
+            <TabsTrigger value="losers">📉 Losers</TabsTrigger>
           </TabsList>
         </Tabs>
+        <div className="relative max-w-md md:flex-1 md:max-w-xs md:ml-auto">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search RELIANCE, AAPL..." className="pl-9" />
+        </div>
       </div>
+
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {display.map((s) => (
