@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { TrendingUp, TrendingDown, Star, StarOff, Wallet, IndianRupee, DollarSign } from "lucide-react";
@@ -8,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useTicker } from "@/hooks/useLivePrices";
 import { STOCKS, getStock, livePrice, livePctChange, formatMoney } from "@/lib/stocks";
+import { PortfolioAreaChart } from "@/components/PortfolioAreaChart";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -105,6 +105,18 @@ function Dashboard() {
           sub={`${plUsd >= 0 ? "+" : ""}${formatMoney(plUsd, "USD")} P&L`}
           positive={plUsd >= 0}
         />
+      </div>
+
+      {/* Portfolio performance chart */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card className="glass p-6">
+          <h2 className="mb-4 font-display text-xl font-semibold">Portfolio Value (INR · 30d)</h2>
+          <PortfolioAreaChart currentValue={invInr} currency="INR" seed="dash-inr" />
+        </Card>
+        <Card className="glass p-6">
+          <h2 className="mb-4 font-display text-xl font-semibold">Portfolio Value (USD · 30d)</h2>
+          <PortfolioAreaChart currentValue={invUsd} currency="USD" seed="dash-usd" />
+        </Card>
       </div>
 
       {/* Watchlist */}
