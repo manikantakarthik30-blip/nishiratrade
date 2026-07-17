@@ -114,7 +114,7 @@ function AuthedLayout() {
 
           {/* Mobile bottom nav */}
           <nav className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-around border-t border-border/60 bg-background/95 backdrop-blur-md md:hidden">
-            {nav.map((item) => {
+            {mobileNav.map((item) => {
               const active = pathname === item.url || pathname.startsWith(item.url + "/");
               return (
                 <Link
