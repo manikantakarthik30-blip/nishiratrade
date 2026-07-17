@@ -16,6 +16,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedPortfolioRouteImport } from './routes/_authenticated/portfolio'
 import { Route as AuthenticatedMarketsRouteImport } from './routes/_authenticated/markets'
+import { Route as AuthenticatedLearnRouteImport } from './routes/_authenticated/learn'
 import { Route as AuthenticatedLeaderboardRouteImport } from './routes/_authenticated/leaderboard'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedTradeTickerRouteImport } from './routes/_authenticated/trade.$ticker'
@@ -54,6 +55,11 @@ const AuthenticatedMarketsRoute = AuthenticatedMarketsRouteImport.update({
   path: '/markets',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedLearnRoute = AuthenticatedLearnRouteImport.update({
+  id: '/learn',
+  path: '/learn',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedLeaderboardRoute =
   AuthenticatedLeaderboardRouteImport.update({
     id: '/leaderboard',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
+  '/learn': typeof AuthenticatedLearnRoute
   '/markets': typeof AuthenticatedMarketsRoute
   '/portfolio': typeof AuthenticatedPortfolioRoute
   '/trade/$ticker': typeof AuthenticatedTradeTickerRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
+  '/learn': typeof AuthenticatedLearnRoute
   '/markets': typeof AuthenticatedMarketsRoute
   '/portfolio': typeof AuthenticatedPortfolioRoute
   '/trade/$ticker': typeof AuthenticatedTradeTickerRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/leaderboard': typeof AuthenticatedLeaderboardRoute
+  '/_authenticated/learn': typeof AuthenticatedLearnRoute
   '/_authenticated/markets': typeof AuthenticatedMarketsRoute
   '/_authenticated/portfolio': typeof AuthenticatedPortfolioRoute
   '/_authenticated/trade/$ticker': typeof AuthenticatedTradeTickerRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/dashboard'
     | '/leaderboard'
+    | '/learn'
     | '/markets'
     | '/portfolio'
     | '/trade/$ticker'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/dashboard'
     | '/leaderboard'
+    | '/learn'
     | '/markets'
     | '/portfolio'
     | '/trade/$ticker'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/_authenticated/dashboard'
     | '/_authenticated/leaderboard'
+    | '/_authenticated/learn'
     | '/_authenticated/markets'
     | '/_authenticated/portfolio'
     | '/_authenticated/trade/$ticker'
@@ -203,6 +215,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMarketsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/learn': {
+      id: '/_authenticated/learn'
+      path: '/learn'
+      fullPath: '/learn'
+      preLoaderRoute: typeof AuthenticatedLearnRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/leaderboard': {
       id: '/_authenticated/leaderboard'
       path: '/leaderboard'
@@ -230,6 +249,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLeaderboardRoute: typeof AuthenticatedLeaderboardRoute
+  AuthenticatedLearnRoute: typeof AuthenticatedLearnRoute
   AuthenticatedMarketsRoute: typeof AuthenticatedMarketsRoute
   AuthenticatedPortfolioRoute: typeof AuthenticatedPortfolioRoute
   AuthenticatedTradeTickerRoute: typeof AuthenticatedTradeTickerRoute
@@ -238,6 +258,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLeaderboardRoute: AuthenticatedLeaderboardRoute,
+  AuthenticatedLearnRoute: AuthenticatedLearnRoute,
   AuthenticatedMarketsRoute: AuthenticatedMarketsRoute,
   AuthenticatedPortfolioRoute: AuthenticatedPortfolioRoute,
   AuthenticatedTradeTickerRoute: AuthenticatedTradeTickerRoute,
