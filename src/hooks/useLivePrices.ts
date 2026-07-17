@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { livePrice, livePctChange } from "@/lib/stocks";
+import { useEffect, useRef, useState } from "react";
+import { getStock, livePrice, livePctChange } from "@/lib/stocks";
 
 /** Re-render every 3s so livePrice() reflects the latest tick. */
 export function useTicker(intervalMs = 3000) {
@@ -11,7 +11,62 @@ export function useTicker(intervalMs = 3000) {
   return tick;
 }
 
+/**
+ * Live price hook. For US tickers, tries Finnhub WebSocket when the key is set.
+ * Otherwise falls back to the deterministic simulation used across the app.
+ */
 export function useLivePrice(ticker: string) {
   useTicker();
-  return { price: livePrice(ticker), pct: livePctChange(ticker) };
+  const stock = getStock(ticker);
+  const initial = livePrice(ticker);
+  const [wsPrice, setWsPrice] = useState<number | null>(null);
+  const openPriceRef = useRef<number>(initial || 1);
+
+  useEffect(() => {
+    const key = import.meta.env.VITE_FINNHUB_API_KEY as string | undefined;
+    if (!key || !stock || stock.market !== "US" || typeof window === "undefined") return;
+
+    let ws: WebSocket | null = null;
+    let cancelled = false;
+    try {
+      ws = new WebSocket(`wss://ws.finnhub.io?token=${key}`);
+      ws.onopen = () => {
+        if (cancelled) return;
+        ws?.send(JSON.stringify({ type: "subscribe", symbol: ticker }));
+      };
+      ws.onmessage = (evt) => {
+        try {
+          const msg = JSON.parse(evt.data);
+          if (msg.type === "trade" && Array.isArray(msg.data) && msg.data.length) {
+            const last = msg.data[msg.data.length - 1];
+            if (typeof last.p === "number") setWsPrice(last.p);
+          }
+        } catch {
+          /* ignore malformed frames */
+        }
+      };
+      ws.onerror = () => {
+        /* silently fall back to simulation */
+      };
+    } catch {
+      /* WS unsupported — fall back */
+    }
+
+    return () => {
+      cancelled = true;
+      try {
+        ws?.send(JSON.stringify({ type: "unsubscribe", symbol: ticker }));
+      } catch {
+        /* ignore */
+      }
+      ws?.close();
+    };
+  }, [ticker, stock]);
+
+  const price = wsPrice ?? initial;
+  const pct = wsPrice
+    ? ((wsPrice - openPriceRef.current) / openPriceRef.current) * 100
+    : livePctChange(ticker);
+
+  return { price, pct, isLive: wsPrice !== null };
 }
