@@ -14,7 +14,117 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      holdings: {
+        Row: {
+          avg_price: number
+          id: string
+          market: Database["public"]["Enums"]["market_type"]
+          qty: number
+          ticker: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avg_price?: number
+          id?: string
+          market: Database["public"]["Enums"]["market_type"]
+          qty?: number
+          ticker: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avg_price?: number
+          id?: string
+          market?: Database["public"]["Enums"]["market_type"]
+          qty?: number
+          ticker?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          balance_inr: number
+          balance_usd: number
+          created_at: string
+          id: string
+          username: string
+        }
+        Insert: {
+          balance_inr?: number
+          balance_usd?: number
+          created_at?: string
+          id: string
+          username: string
+        }
+        Update: {
+          balance_inr?: number
+          balance_usd?: number
+          created_at?: string
+          id?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      trades: {
+        Row: {
+          created_at: string
+          id: string
+          market: Database["public"]["Enums"]["market_type"]
+          price: number
+          qty: number
+          side: Database["public"]["Enums"]["trade_side"]
+          ticker: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          market: Database["public"]["Enums"]["market_type"]
+          price: number
+          qty: number
+          side: Database["public"]["Enums"]["trade_side"]
+          ticker: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          market?: Database["public"]["Enums"]["market_type"]
+          price?: number
+          qty?: number
+          side?: Database["public"]["Enums"]["trade_side"]
+          ticker?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      watchlist: {
+        Row: {
+          created_at: string
+          id: string
+          market: Database["public"]["Enums"]["market_type"]
+          ticker: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          market: Database["public"]["Enums"]["market_type"]
+          ticker: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          market?: Database["public"]["Enums"]["market_type"]
+          ticker?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +133,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      market_type: "IN" | "US"
+      trade_side: "BUY" | "SELL"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +261,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      market_type: ["IN", "US"],
+      trade_side: ["BUY", "SELL"],
+    },
   },
 } as const
