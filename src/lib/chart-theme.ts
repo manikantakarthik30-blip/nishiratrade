@@ -61,9 +61,13 @@ export function simulatedOHLCV(ticker: string, days = 60): Candle[] {
 }
 
 /** Try Alpha Vantage for US stocks, else simulated. */
-export async function fetchOHLCV(ticker: string, market: "IN" | "US"): Promise<Candle[]> {
+export async function fetchOHLCV(
+  ticker: string,
+  market: "IN" | "US",
+  apiKey?: string,
+): Promise<Candle[]> {
   if (market === "US") {
-    const key = import.meta.env.VITE_ALPHA_VANTAGE_KEY;
+    const key = apiKey;
     if (key && key !== "your_alpha_vantage_key_here") {
       try {
         const r = await fetch(

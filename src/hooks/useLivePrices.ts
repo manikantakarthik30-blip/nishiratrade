@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { getStock, livePrice, livePctChange } from "@/lib/stocks";
+import { getFinnhubKey } from "@/lib/market-data.functions";
 
 /** Re-render every 3s so livePrice() reflects the latest tick. */
 export function useTicker(intervalMs = 3000) {
@@ -22,8 +25,15 @@ export function useLivePrice(ticker: string) {
   const [wsPrice, setWsPrice] = useState<number | null>(null);
   const openPriceRef = useRef<number>(initial || 1);
 
+  const fetchKey = useServerFn(getFinnhubKey);
+  const { data: finnhubKey } = useQuery({
+    queryKey: ["finnhubKey"],
+    queryFn: () => fetchKey(),
+    staleTime: Infinity,
+  });
+
   useEffect(() => {
-    const key = import.meta.env.VITE_FINNHUB_API_KEY as string | undefined;
+    const key = finnhubKey;
     if (!key || !stock || stock.market !== "US" || typeof window === "undefined") return;
 
     let ws: WebSocket | null = null;
@@ -61,7 +71,7 @@ export function useLivePrice(ticker: string) {
       }
       ws?.close();
     };
-  }, [ticker, stock]);
+  }, [ticker, stock, finnhubKey]);
 
   const price = wsPrice ?? initial;
   const pct = wsPrice

@@ -1,4 +1,6 @@
 import { useEffect, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import {
   createChart,
   CandlestickSeries,
@@ -7,8 +9,9 @@ import {
   type ISeriesApi,
   type UTCTimestamp,
 } from "lightweight-charts";
-import { chartTheme, fetchOHLCV, simulatedOHLCV, type Candle } from "@/lib/chart-theme";
+import { chartTheme, simulatedOHLCV, type Candle } from "@/lib/chart-theme";
 import { getStock } from "@/lib/stocks";
+import { getFinnhubKey, getOHLCV } from "@/lib/market-data.functions";
 
 interface Props {
   ticker: string;
@@ -22,6 +25,21 @@ export function CandleChart({ ticker, height = 400 }: Props) {
   const volRef = useRef<ISeriesApi<"Histogram"> | null>(null);
   const lastRef = useRef<Candle | null>(null);
 
+  const fetchKey = useServerFn(getFinnhubKey);
+  const fetchOHLCV = useServerFn(getOHLCV);
+
+  const { data: finnhubKey } = useQuery({
+    queryKey: ["finnhubKey"],
+    queryFn: () => fetchKey(),
+    staleTime: Infinity,
+  });
+  const { data: ohlcvRows } = useQuery({
+    queryKey: ["ohlcv", ticker],
+    queryFn: () => fetchOHLCV({ data: { ticker, market: getStock(ticker)?.market ?? "IN" } }),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Create chart once
   useEffect(() => {
     if (!containerRef.current) return;
     const stock = getStock(ticker);
@@ -57,43 +75,62 @@ export function CandleChart({ ticker, height = 400 }: Props) {
     candleRef.current = candle;
     volRef.current = vol;
 
-    let cancelled = false;
+    // Initial simulated data so the chart is never blank
+    const initial = simulatedOHLCV(ticker, 60);
+    candle.setData(initial);
+    vol.setData(
+      initial.map((c) => ({
+        time: c.time,
+        value: c.volume,
+        color: c.close >= c.open ? "#22c55e66" : "#ef444466",
+      })),
+    );
+    lastRef.current = initial[initial.length - 1];
+    chart.timeScale().fitContent();
+
+    const ro = new ResizeObserver(() => {
+      if (containerRef.current && chartRef.current) {
+        chartRef.current.applyOptions({ width: containerRef.current.clientWidth });
+      }
+    });
+    ro.observe(containerRef.current);
+
+    return () => {
+      ro.disconnect();
+      chart.remove();
+      chartRef.current = null;
+      candleRef.current = null;
+      volRef.current = null;
+      lastRef.current = null;
+    };
+  }, [ticker, height]);
+
+  // Upgrade to real OHLCV data when it arrives
+  useEffect(() => {
+    if (!candleRef.current || !volRef.current || !ohlcvRows?.length) return;
+    candleRef.current.setData(ohlcvRows);
+    volRef.current.setData(
+      ohlcvRows.map((c) => ({
+        time: c.time,
+        value: c.volume,
+        color: c.close >= c.open ? "#22c55e66" : "#ef444466",
+      })),
+    );
+    lastRef.current = ohlcvRows[ohlcvRows.length - 1];
+    chartRef.current?.timeScale().fitContent();
+  }, [ohlcvRows]);
+
+  // Real-time tick updates
+  useEffect(() => {
+    const stock = getStock(ticker);
+    if (!stock || stock.market !== "US" || !finnhubKey || finnhubKey === "your_finnhub_api_key_here") {
+      return;
+    }
+    if (!candleRef.current || !volRef.current) return;
+
     let ws: WebSocket | null = null;
+    let cancelled = false;
     let simTimer: ReturnType<typeof setInterval> | null = null;
-
-    (async () => {
-      // Immediate simulated data so the chart is never blank
-      const initial = simulatedOHLCV(ticker, 60);
-      candle.setData(initial);
-      vol.setData(
-        initial.map((c) => ({
-          time: c.time,
-          value: c.volume,
-          color: c.close >= c.open ? "#22c55e66" : "#ef444466",
-        })),
-      );
-      lastRef.current = initial[initial.length - 1];
-      chart.timeScale().fitContent();
-
-      // Try to upgrade to real data
-      const rows = await fetchOHLCV(ticker, stock.market);
-      if (cancelled || !rows.length) return;
-      candle.setData(rows);
-      vol.setData(
-        rows.map((c) => ({
-          time: c.time,
-          value: c.volume,
-          color: c.close >= c.open ? "#22c55e66" : "#ef444466",
-        })),
-      );
-      lastRef.current = rows[rows.length - 1];
-      chart.timeScale().fitContent();
-    })();
-
-    // Real-time updates
-    const finnhubKey = import.meta.env.VITE_FINNHUB_API_KEY;
-    const useWs =
-      stock.market === "US" && finnhubKey && finnhubKey !== "your_finnhub_api_key_here";
 
     const applyTick = (price: number) => {
       const last = lastRef.current;
@@ -119,28 +156,23 @@ export function CandleChart({ ticker, height = 400 }: Props) {
       });
     };
 
-    if (useWs) {
-      try {
-        ws = new WebSocket(`wss://ws.finnhub.io?token=${finnhubKey}`);
-        ws.onopen = () => ws?.send(JSON.stringify({ type: "subscribe", symbol: ticker }));
-        ws.onmessage = (ev) => {
-          try {
-            const msg = JSON.parse(ev.data);
-            if (msg.type === "trade" && Array.isArray(msg.data) && msg.data[0]?.p) {
-              applyTick(msg.data[0].p);
-            }
-          } catch {
-            /* ignore */
+    try {
+      ws = new WebSocket(`wss://ws.finnhub.io?token=${finnhubKey}`);
+      ws.onopen = () => ws?.send(JSON.stringify({ type: "subscribe", symbol: ticker }));
+      ws.onmessage = (ev) => {
+        try {
+          const msg = JSON.parse(ev.data);
+          if (msg.type === "trade" && Array.isArray(msg.data) && msg.data[0]?.p) {
+            applyTick(msg.data[0].p);
           }
-        };
-        ws.onerror = () => {
-          // fall back to simulation if socket dies
-          if (!simTimer) simTimer = setInterval(simTick, 2000);
-        };
-      } catch {
-        simTimer = setInterval(simTick, 2000);
-      }
-    } else {
+        } catch {
+          /* ignore */
+        }
+      };
+      ws.onerror = () => {
+        if (!simTimer) simTimer = setInterval(simTick, 2000);
+      };
+    } catch {
       simTimer = setInterval(simTick, 2000);
     }
 
@@ -151,16 +183,8 @@ export function CandleChart({ ticker, height = 400 }: Props) {
       applyTick(Math.max(0.01, last.close * (1 + pct)));
     }
 
-    const ro = new ResizeObserver(() => {
-      if (containerRef.current && chartRef.current) {
-        chartRef.current.applyOptions({ width: containerRef.current.clientWidth });
-      }
-    });
-    ro.observe(containerRef.current);
-
     return () => {
       cancelled = true;
-      ro.disconnect();
       if (simTimer) clearInterval(simTimer);
       if (ws) {
         try {
@@ -170,12 +194,8 @@ export function CandleChart({ ticker, height = 400 }: Props) {
         }
         ws.close();
       }
-      chart.remove();
-      chartRef.current = null;
-      candleRef.current = null;
-      volRef.current = null;
     };
-  }, [ticker, height]);
+  }, [ticker, finnhubKey]);
 
   return <div ref={containerRef} style={{ width: "100%", height }} />;
 }
