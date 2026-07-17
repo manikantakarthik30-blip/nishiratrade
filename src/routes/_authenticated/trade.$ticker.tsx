@@ -1,20 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { ArrowLeft } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getStock, livePrice, livePctChange, formatMoney, priceHistory } from "@/lib/stocks";
+import { getStock, livePrice, livePctChange, formatMoney } from "@/lib/stocks";
 import { useTicker } from "@/hooks/useLivePrices";
 import { supabase } from "@/integrations/supabase/client";
 import { placeOrder } from "@/lib/trade.functions";
+import { CandleChart } from "@/components/CandleChart";
 
 export const Route = createFileRoute("/_authenticated/trade/$ticker")({
   component: TradePage,
@@ -43,7 +43,7 @@ function TradePage() {
       (await supabase.from("holdings").select("*").eq("ticker", ticker.toUpperCase()).maybeSingle()).data,
   });
 
-  const history = useMemo(() => priceHistory(ticker.toUpperCase(), 7), [ticker]);
+  
 
   if (!stock) {
     return (
@@ -114,18 +114,8 @@ function TradePage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Chart */}
         <Card className="glass col-span-2 p-4">
-          <div className="mb-2 text-sm text-muted-foreground">7-day price history</div>
-          <ResponsiveContainer width="100%" height={320}>
-            <LineChart data={history}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(240 30% 20%)" />
-              <XAxis dataKey="time" tick={{ fontSize: 10 }} stroke="hsl(0 0% 60%)" minTickGap={30} />
-              <YAxis domain={["dataMin", "dataMax"]} tick={{ fontSize: 10 }} stroke="hsl(0 0% 60%)" />
-              <Tooltip
-                contentStyle={{ background: "hsl(240 30% 12%)", border: "1px solid hsl(240 30% 20%)", borderRadius: 8 }}
-              />
-              <Line type="monotone" dataKey="price" stroke="var(--color-primary)" strokeWidth={2.5} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className="mb-2 text-sm text-muted-foreground">Price &amp; volume · live</div>
+          <CandleChart ticker={stock.ticker} height={400} />
         </Card>
 
         {/* Order form */}
