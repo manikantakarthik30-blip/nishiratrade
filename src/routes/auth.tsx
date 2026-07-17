@@ -61,6 +61,20 @@ function AuthPage() {
     navigate({ to: "/dashboard" });
   };
 
+  const onGoogle = async () => {
+    setLoading(true);
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
+    if (result.error) {
+      setLoading(false);
+      return toast.error(result.error.message);
+    }
+    if (result.redirected) return;
+    toast.success("Welcome, astronaut.");
+    navigate({ to: "/dashboard" });
+  };
+
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4 py-10">
       <Starfield density={200} />
