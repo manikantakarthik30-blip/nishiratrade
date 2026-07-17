@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, redirect, Link, useRouter, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, TrendingUp, Wallet, Trophy, Rocket, LogOut, CandlestickChart } from "lucide-react";
+import { LayoutDashboard, TrendingUp, Wallet, Trophy, Rocket, LogOut, CandlestickChart, GraduationCap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Starfield } from "@/components/Starfield";
 import {
@@ -32,8 +32,11 @@ const nav = [
   { title: "Markets", url: "/markets", icon: TrendingUp },
   { title: "Chart", url: "/chart", icon: CandlestickChart },
   { title: "Portfolio", url: "/portfolio", icon: Wallet },
+  { title: "Learn", url: "/learn", icon: GraduationCap },
   { title: "Leaderboard", url: "/leaderboard", icon: Trophy },
 ] as const;
+
+const mobileNav = nav.filter((n) => n.title !== "Leaderboard");
 
 function AuthedLayout() {
   const router = useRouter();
@@ -111,7 +114,7 @@ function AuthedLayout() {
 
           {/* Mobile bottom nav */}
           <nav className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-around border-t border-border/60 bg-background/95 backdrop-blur-md md:hidden">
-            {nav.map((item) => {
+            {mobileNav.map((item) => {
               const active = pathname === item.url || pathname.startsWith(item.url + "/");
               return (
                 <Link
