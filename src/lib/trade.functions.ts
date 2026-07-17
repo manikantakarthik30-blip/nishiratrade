@@ -70,7 +70,8 @@ export const placeOrder = createServerFn({ method: "POST" })
       }
       await supabase
         .from("profiles")
-        .update({ [balanceCol]: balance + cost })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .update({ [balanceCol]: balance + cost } as any)
         .eq("id", userId);
     }
 
