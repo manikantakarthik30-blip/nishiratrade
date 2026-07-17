@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /markets
+Disallow: /portfolio
+Disallow: /trade
+Disallow: /leaderboard
