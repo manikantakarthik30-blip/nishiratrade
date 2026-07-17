@@ -2,13 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, TrendingUp, TrendingDown } from "lucide-react";
-import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { STOCKS, livePrice, livePctChange, formatMoney, priceHistory, getStock } from "@/lib/stocks";
+import { STOCKS, livePrice, livePctChange, formatMoney, getStock } from "@/lib/stocks";
 import { useTicker } from "@/hooks/useLivePrices";
+import { Sparkline } from "@/components/Sparkline";
+import { CandleChart } from "@/components/CandleChart";
 
 export const Route = createFileRoute("/_authenticated/markets")({
   component: MarketsPage,
@@ -73,12 +74,15 @@ function MarketsPage() {
                 {s.market}
               </span>
             </div>
-            <div className="mt-4 flex items-end justify-between">
-              <div className="font-display text-xl font-bold">{formatMoney(s.price, s.currency)}</div>
-              <div className={`flex items-center gap-1 text-sm font-medium ${s.pct >= 0 ? "text-success" : "text-destructive"}`}>
-                {s.pct >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                {s.pct.toFixed(2)}%
+            <div className="mt-3 flex items-end justify-between gap-2">
+              <div>
+                <div className="font-display text-xl font-bold">{formatMoney(s.price, s.currency)}</div>
+                <div className={`mt-0.5 flex items-center gap-1 text-sm font-medium ${s.pct >= 0 ? "text-success" : "text-destructive"}`}>
+                  {s.pct >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                  {s.pct.toFixed(2)}%
+                </div>
               </div>
+              <Sparkline ticker={s.ticker} />
             </div>
           </motion.div>
         ))}
@@ -94,7 +98,6 @@ function MarketsPage() {
 
 function StockPanel({ ticker, onClose }: { ticker: string; onClose: () => void }) {
   const s = getStock(ticker)!;
-  const data = priceHistory(ticker, 7);
   const price = livePrice(ticker);
   const pct = livePctChange(ticker);
   return (
@@ -128,18 +131,8 @@ function StockPanel({ ticker, onClose }: { ticker: string; onClose: () => void }
             {pct >= 0 ? "▲" : "▼"} {pct.toFixed(2)}%
           </div>
         </div>
-        <Card className="glass mt-6 p-4">
-          <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={data}>
-              <XAxis dataKey="time" hide />
-              <YAxis domain={["dataMin", "dataMax"]} hide />
-              <Tooltip
-                contentStyle={{ background: "hsl(240 30% 12%)", border: "1px solid hsl(240 30% 20%)", borderRadius: 8 }}
-                labelStyle={{ color: "hsl(0 0% 80%)" }}
-              />
-              <Line type="monotone" dataKey="price" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
+        <Card className="glass mt-6 p-2">
+          <CandleChart ticker={s.ticker} height={260} />
         </Card>
         <Button asChild size="lg" className="mt-6 animate-pulse-glow">
           <Link to="/trade/$ticker" params={{ ticker: s.ticker }}>Trade {s.ticker}</Link>

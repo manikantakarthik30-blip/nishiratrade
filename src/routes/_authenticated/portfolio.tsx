@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { getStock, livePrice, formatMoney } from "@/lib/stocks";
 import { useTicker } from "@/hooks/useLivePrices";
+import { PortfolioAreaChart } from "@/components/PortfolioAreaChart";
 
 export const Route = createFileRoute("/_authenticated/portfolio")({
   component: PortfolioPage,
@@ -117,6 +118,18 @@ function PortfolioPage() {
           </div>
         )}
       </Card>
+
+      {/* Value over time */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card className="glass p-6">
+          <h3 className="mb-2 font-display text-lg font-semibold">Value Over Time (INR)</h3>
+          <PortfolioAreaChart currentValue={totalValueInr} currency="INR" seed="pf-inr" />
+        </Card>
+        <Card className="glass p-6">
+          <h3 className="mb-2 font-display text-lg font-semibold">Value Over Time (USD)</h3>
+          <PortfolioAreaChart currentValue={totalValueUsd} currency="USD" seed="pf-usd" />
+        </Card>
+      </div>
 
       {/* Pie chart allocation */}
       <div className="grid gap-4 lg:grid-cols-2">
