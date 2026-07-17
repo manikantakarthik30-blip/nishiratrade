@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ChartRouteImport } from './routes/chart'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -17,12 +18,16 @@ import { Route as AuthenticatedPortfolioRouteImport } from './routes/_authentica
 import { Route as AuthenticatedMarketsRouteImport } from './routes/_authenticated/markets'
 import { Route as AuthenticatedLeaderboardRouteImport } from './routes/_authenticated/leaderboard'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedChartRouteImport } from './routes/_authenticated/chart'
 import { Route as AuthenticatedTradeTickerRouteImport } from './routes/_authenticated/trade.$ticker'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChartRoute = ChartRouteImport.update({
+  id: '/chart',
+  path: '/chart',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -60,11 +65,6 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedChartRoute = AuthenticatedChartRouteImport.update({
-  id: '/chart',
-  path: '/chart',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedTradeTickerRoute =
   AuthenticatedTradeTickerRouteImport.update({
     id: '/trade/$ticker',
@@ -75,8 +75,8 @@ const AuthenticatedTradeTickerRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/chart': typeof ChartRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/chart': typeof AuthenticatedChartRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/markets': typeof AuthenticatedMarketsRoute
@@ -86,8 +86,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/chart': typeof ChartRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/chart': typeof AuthenticatedChartRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/markets': typeof AuthenticatedMarketsRoute
@@ -99,8 +99,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/chart': typeof ChartRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/_authenticated/chart': typeof AuthenticatedChartRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/_authenticated/markets': typeof AuthenticatedMarketsRoute
@@ -112,8 +112,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
-    | '/sitemap.xml'
     | '/chart'
+    | '/sitemap.xml'
     | '/dashboard'
     | '/leaderboard'
     | '/markets'
@@ -123,8 +123,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
-    | '/sitemap.xml'
     | '/chart'
+    | '/sitemap.xml'
     | '/dashboard'
     | '/leaderboard'
     | '/markets'
@@ -135,8 +135,8 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/chart'
     | '/sitemap.xml'
-    | '/_authenticated/chart'
     | '/_authenticated/dashboard'
     | '/_authenticated/leaderboard'
     | '/_authenticated/markets'
@@ -148,6 +148,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ChartRoute: typeof ChartRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
@@ -158,6 +159,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chart': {
+      id: '/chart'
+      path: '/chart'
+      fullPath: '/chart'
+      preLoaderRoute: typeof ChartRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -209,13 +217,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/chart': {
-      id: '/_authenticated/chart'
-      path: '/chart'
-      fullPath: '/chart'
-      preLoaderRoute: typeof AuthenticatedChartRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/trade/$ticker': {
       id: '/_authenticated/trade/$ticker'
       path: '/trade/$ticker'
@@ -227,7 +228,6 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedChartRoute: typeof AuthenticatedChartRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLeaderboardRoute: typeof AuthenticatedLeaderboardRoute
   AuthenticatedMarketsRoute: typeof AuthenticatedMarketsRoute
@@ -236,7 +236,6 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedChartRoute: AuthenticatedChartRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLeaderboardRoute: AuthenticatedLeaderboardRoute,
   AuthenticatedMarketsRoute: AuthenticatedMarketsRoute,
@@ -251,6 +250,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ChartRoute: ChartRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
