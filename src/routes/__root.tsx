@@ -72,23 +72,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "CosmicTrade — Practice the market with real data, fake money" },
+      { title: "NISHIRA.TRADE — Practice the market. Risk nothing. Learn everything." },
       {
         name: "description",
         content:
-          "CosmicTrade is a paper trading playground for Indian and US stocks. Learn the market risk-free with a virtual portfolio and simulated live prices.",
+          "NISHIRA.TRADE is a paper trading playground for Indian and US stocks. Practice the market. Risk nothing. Learn everything.",
       },
-      { property: "og:title", content: "CosmicTrade — Paper Trading Playground" },
+      { property: "og:title", content: "NISHIRA.TRADE — Paper Trading Playground" },
       {
         property: "og:description",
-        content: "Practice the stock market with real data, fake money.",
+        content: "Practice the market. Risk nothing. Learn everything.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "NISHIRA.TRADE" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {

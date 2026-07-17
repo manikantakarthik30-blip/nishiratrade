@@ -55,8 +55,8 @@ function AuthedLayout() {
           <SidebarHeader>
             <Link to="/dashboard" className="flex items-center gap-2 px-2 py-2">
               <Rocket className="h-5 w-5 text-primary shrink-0" />
-              <span className="font-display font-bold group-data-[collapsible=icon]:hidden">
-                Cosmic<span className="text-primary">Trade</span>
+              <span className="font-display font-bold tracking-tight group-data-[collapsible=icon]:hidden">
+                NISHIRA<span className="text-primary">.TRADE</span>
               </span>
             </Link>
           </SidebarHeader>
@@ -96,7 +96,7 @@ function AuthedLayout() {
         <div className="flex flex-1 flex-col">
           <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-border/40 bg-background/60 px-4 backdrop-blur-md">
             <SidebarTrigger />
-            <span className="font-display text-sm text-muted-foreground">CosmicTrade</span>
+            <span className="font-display text-sm text-muted-foreground">NISHIRA.TRADE</span>
           </header>
           <main className="flex-1 p-4 md:p-8">
             <Outlet />
