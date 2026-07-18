@@ -63,6 +63,7 @@ function Landing() {
             <Link to="/" className="hover:text-foreground transition">Home</Link>
             <a href="#features" className="hover:text-foreground transition">Markets</a>
             <a href="#learn" className="hover:text-foreground transition">Learn</a>
+            <Link to="/docs" className="hover:text-foreground transition">Docs</Link>
           </nav>
 
           <div className="hidden md:flex items-center gap-2 shrink-0">
