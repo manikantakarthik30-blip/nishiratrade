@@ -44,7 +44,9 @@ function Landing() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <Starfield density={180} />
+      <SpaceCanvas />
+      <div className="pointer-events-none fixed inset-0 z-[1] bg-black/30" aria-hidden />
+
 
       {/* Navbar */}
       <header className="relative z-20 px-4 py-4 md:px-12 md:py-5">
