@@ -1,21 +1,17 @@
 import { createFileRoute, Outlet, redirect, Link, useRouter, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, TrendingUp, Wallet, Trophy, Rocket, LogOut, CandlestickChart, GraduationCap } from "lucide-react";
+import {
+  LayoutDashboard, TrendingUp, Wallet, Trophy, Rocket, LogOut,
+  CandlestickChart, GraduationCap, User, Settings,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Starfield } from "@/components/Starfield";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-  SidebarHeader,
-  SidebarFooter,
-} from "@/components/ui/sidebar";
-import { useQueryClient } from "@tanstack/react-query";
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { formatMoney } from "@/lib/stocks";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -42,6 +38,18 @@ function AuthedLayout() {
   const router = useRouter();
   const qc = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isTradePage = pathname.startsWith("/trade/");
+
+  const { data: user } = useQuery({
+    queryKey: ["auth-user"],
+    queryFn: async () => (await supabase.auth.getUser()).data.user,
+    staleTime: 60_000,
+  });
+
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => (await supabase.from("profiles").select("*").maybeSingle()).data,
+  });
 
   const signOut = async () => {
     await qc.cancelQueries();
@@ -50,89 +58,113 @@ function AuthedLayout() {
     router.navigate({ to: "/auth", search: { mode: "login" }, replace: true });
   };
 
+  const displayName: string =
+    (profile?.username as string | undefined) ||
+    (user?.user_metadata?.full_name as string | undefined) ||
+    user?.email?.split("@")[0] ||
+    "trader";
+  const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
+  const initials = displayName.slice(0, 2).toUpperCase();
+  const inrBalance = Number(profile?.balance_inr ?? 0);
+
   return (
-    <SidebarProvider>
+    <div className="flex min-h-screen w-full flex-col overflow-x-hidden">
       <Starfield density={80} />
-      <div className="flex min-h-screen w-full">
-        <Sidebar collapsible="icon" className="hidden border-r border-sidebar-border md:flex">
-          <SidebarHeader>
-            <Link to="/dashboard" className="flex items-center gap-2 px-2 py-2">
-              <Rocket className="h-5 w-5 text-primary shrink-0" />
-              <span className="font-display font-bold tracking-tight group-data-[collapsible=icon]:hidden">
-                NISHIRA<span className="text-primary">.TRADE</span>
-              </span>
-            </Link>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {nav.map((item) => {
-                    const active = pathname === item.url || pathname.startsWith(item.url + "/");
-                    return (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
-                          <Link to={item.url}>
-                            <item.icon className="h-4 w-4" />
-                            <span>{item.title}</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-          <SidebarFooter>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={signOut} tooltip="Sign out">
-                  <LogOut className="h-4 w-4" />
-                  <span>Sign out</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarFooter>
-        </Sidebar>
 
-        <div className="flex flex-1 flex-col">
-          <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-border/40 bg-background/60 px-4 backdrop-blur-md">
-            <SidebarTrigger className="hidden md:inline-flex" />
-            <Link to="/dashboard" className="flex items-center gap-2 md:hidden">
-              <Rocket className="h-4 w-4 text-primary" />
-              <span className="font-display text-sm font-bold">NISHIRA<span className="text-primary">.TRADE</span></span>
-            </Link>
-            <span className="ml-auto text-xs text-muted-foreground hidden md:inline">Practice the market. Risk nothing.</span>
-            <button onClick={signOut} className="text-xs text-muted-foreground hover:text-foreground md:hidden">
-              <LogOut className="h-4 w-4" />
-            </button>
-          </header>
-          <main className="flex-1 p-4 pb-24 md:p-8 md:pb-8">
-            <Outlet />
-          </main>
+      {/* Top header */}
+      <header
+        className="sticky top-0 z-40 flex h-[60px] items-center gap-3 border-b px-4 md:px-6"
+        style={{ background: "#0a0a1a", borderBottomColor: "#1a1a2e" }}
+      >
+        <Link to="/dashboard" className="flex items-center gap-2 shrink-0">
+          <Rocket className="h-5 w-5 text-primary" />
+          <span className="font-display text-sm font-bold tracking-tight md:text-base">
+            NISHIRA<span className="text-primary">.TRADE</span>
+          </span>
+        </Link>
 
-          {/* Mobile bottom nav */}
-          <nav className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-around border-t border-border/60 bg-background/95 backdrop-blur-md md:hidden">
-            {mobileNav.map((item) => {
-              const active = pathname === item.url || pathname.startsWith(item.url + "/");
-              return (
-                <Link
-                  key={item.title}
-                  to={item.url}
-                  className={`flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[10px] transition-colors ${
-                    active ? "text-primary" : "text-muted-foreground"
-                  }`}
-                >
-                  <item.icon className="h-5 w-5" />
-                  <span>{item.title}</span>
-                </Link>
-              );
-            })}
-          </nav>
+        {/* Center nav — desktop only */}
+        <nav className="mx-auto hidden items-center gap-8 md:flex">
+          {nav.map((item) => {
+            const active = pathname === item.url || pathname.startsWith(item.url + "/");
+            return (
+              <Link
+                key={item.title}
+                to={item.url}
+                className={`relative py-[19px] text-sm transition-colors ${
+                  active
+                    ? "text-primary"
+                    : "text-[#a0a0b0] hover:text-white"
+                }`}
+              >
+                {item.title}
+                {active && (
+                  <span className="absolute inset-x-0 bottom-0 h-0.5 bg-primary" />
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Right: balance + avatar */}
+        <div className="ml-auto flex items-center gap-3">
+          <div className="hidden rounded-md border border-border/40 bg-muted/30 px-3 py-1.5 text-sm font-semibold text-success tabular-nums sm:block">
+            {formatMoney(inrBalance, "INR")}
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="rounded-full outline-none ring-primary/50 focus-visible:ring-2">
+              <Avatar className="h-9 w-9 border border-border/60">
+                {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} />}
+                <AvatarFallback className="bg-primary/20 text-xs font-bold text-primary">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="truncate">{displayName}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="sm:hidden">
+                <span className="text-success">{formatMoney(inrBalance, "INR")}</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/portfolio"><User className="mr-2 h-4 w-4" /> Profile</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/dashboard"><Settings className="mr-2 h-4 w-4" /> Settings</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={signOut} className="text-destructive">
+                <LogOut className="mr-2 h-4 w-4" /> Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-      </div>
-    </SidebarProvider>
+      </header>
+
+      <main className={`flex-1 ${isTradePage ? "" : "p-3 pb-20 md:p-8 md:pb-8"}`}>
+        <Outlet />
+      </main>
+
+      {/* Mobile bottom nav */}
+      <nav
+        className="fixed inset-x-0 bottom-0 z-30 flex h-14 items-center justify-around border-t md:hidden"
+        style={{ background: "#0d0d1a", borderTopColor: "#1a1a2e" }}
+      >
+        {mobileNav.map((item) => {
+          const active = pathname === item.url || pathname.startsWith(item.url + "/");
+          return (
+            <Link
+              key={item.title}
+              to={item.url}
+              className="flex flex-1 flex-col items-center justify-center gap-0.5 py-1 text-[10px] transition-colors"
+              style={{ color: active ? "#00d4ff" : "#4a4a6a" }}
+            >
+              <item.icon className="h-5 w-5" />
+              <span>{item.title}</span>
+            </Link>
+          );
+        })}
+      </nav>
+    </div>
   );
 }
-

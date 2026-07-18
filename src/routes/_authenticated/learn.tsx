@@ -92,14 +92,14 @@ function LearnPage() {
   const pct = Math.round((watchedCount / VIDEOS.length) * 100);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-4 md:space-y-6">
       <div className="flex items-start gap-3">
-        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary">
-          <GraduationCap className="h-6 w-6" />
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary md:h-12 md:w-12">
+          <GraduationCap className="h-5 w-5 md:h-6 md:w-6" />
         </div>
         <div className="min-w-0">
-          <h1 className="font-display text-3xl font-bold">Trading Academy</h1>
-          <p className="text-sm text-muted-foreground">Learn trading from basics to advanced — all in one place</p>
+          <h1 className="font-display text-xl font-bold md:text-3xl">Trading Academy</h1>
+          <p className="text-xs text-muted-foreground md:text-sm">Learn trading from basics to advanced — all in one place</p>
         </div>
       </div>
 
