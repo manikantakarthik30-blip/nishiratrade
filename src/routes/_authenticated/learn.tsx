@@ -515,23 +515,40 @@ function LearnPage() {
 function VideoCard({
   video, watched, onToggle, onPlay,
 }: { video: Video; watched: boolean; onToggle: () => void; onPlay: () => void }) {
-  const [imgOk, setImgOk] = useState(true);
+  // Try hqdefault first (higher quality, most reliable), fall back through the chain, then icon.
+  const fallbacks = [
+    `https://i.ytimg.com/vi/${cleanId(video.id)}/hqdefault.jpg`,
+    `https://i.ytimg.com/vi/${cleanId(video.id)}/mqdefault.jpg`,
+    `https://img.youtube.com/vi/${cleanId(video.id)}/0.jpg`,
+  ];
+  const [imgIdx, setImgIdx] = useState(0);
+  const [imgFailed, setImgFailed] = useState(false);
   const langMeta = LANG_META[video.lang];
+
+  const copy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(youtubeUrl(video.id));
+    toast.success("YouTube link copied");
+  };
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border border-border/50 bg-white/[0.03] transition hover:border-primary/40">
       <div className="relative aspect-video bg-black/60">
-        {imgOk ? (
+        {!imgFailed ? (
           <img
-            src={`https://img.youtube.com/vi/${video.id.replace(/_.*$/, "")}/mqdefault.jpg`}
+            src={fallbacks[imgIdx]}
             alt={video.title}
             loading="lazy"
             className="h-full w-full object-cover"
-            onError={() => setImgOk(false)}
+            onError={() => {
+              if (imgIdx < fallbacks.length - 1) setImgIdx(imgIdx + 1);
+              else setImgFailed(true);
+            }}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <PlayCircle className="h-12 w-12 text-primary/60" />
+          <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-primary/20 to-secondary/20">
+            <PlayCircle className="h-12 w-12 text-primary/70" />
+            <span className="text-[10px] font-medium text-muted-foreground">Preview unavailable</span>
           </div>
         )}
         <button
@@ -560,6 +577,25 @@ function VideoCard({
             {video.difficulty}
           </span>
           <div className="flex items-center gap-1">
+            <button
+              onClick={copy}
+              title="Copy YouTube link"
+              aria-label="Copy YouTube link"
+              className="rounded-md p-1.5 text-muted-foreground transition hover:bg-muted/40 hover:text-foreground"
+            >
+              <Copy className="h-4 w-4" />
+            </button>
+            <a
+              href={youtubeUrl(video.id)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              title="Open on YouTube"
+              aria-label="Open on YouTube"
+              className="rounded-md p-1.5 text-muted-foreground transition hover:bg-muted/40 hover:text-foreground"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </a>
             <button
               onClick={onToggle}
               className={`rounded-md p-1.5 text-xs transition ${
