@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getStock, livePrice, livePctChange } from "@/lib/stocks";
-import { getFinnhubKey } from "@/lib/market-data.functions";
+import { getFinnhubKey, getIndianLTP } from "@/lib/market-data.functions";
 
 /** Re-render every 3s so livePrice() reflects the latest tick. */
 export function useTicker(intervalMs = 3000) {
