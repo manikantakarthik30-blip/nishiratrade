@@ -306,11 +306,60 @@ function LearnPage() {
     return () => window.removeEventListener("keydown", onKey);
   }, [playing]);
 
+  // Detect YouTube embed errors via IFrame API postMessage protocol
+  useEffect(() => {
+    if (!playing) return;
+    setEmbedError(null);
+    setEmbedReady(false);
+
+    const ERROR_MESSAGES: Record<number, string> = {
+      2: "Invalid video request.",
+      5: "The video can't be played in this HTML5 player.",
+      100: "Video not found or has been removed.",
+      101: "The video's owner does not allow it to be played in embedded players.",
+      150: "The video's owner does not allow it to be played in embedded players.",
+    };
+
+    const onMessage = (ev: MessageEvent) => {
+      if (typeof ev.data !== "string") return;
+      if (!/youtube\.com$/i.test(new URL(ev.origin).hostname.replace(/^www\./, ""))) return;
+      try {
+        const data = JSON.parse(ev.data);
+        if (data?.event === "onReady" || data?.event === "infoDelivery") {
+          setEmbedReady(true);
+        }
+        if (data?.event === "onError") {
+          const code = Number(data.info);
+          setEmbedError({ code, message: ERROR_MESSAGES[code] ?? "This video failed to load." });
+        }
+      } catch {
+        /* not JSON — ignore */
+      }
+    };
+    window.addEventListener("message", onMessage);
+
+    // Fallback: if we never hear back within 6s, assume blocked/failed
+    const timer = window.setTimeout(() => {
+      setEmbedReady((ready) => {
+        if (!ready) {
+          setEmbedError((prev) => prev ?? { message: "The video didn't respond. It may be blocked or unavailable." });
+        }
+        return ready;
+      });
+    }, 6000);
+
+    return () => {
+      window.removeEventListener("message", onMessage);
+      window.clearTimeout(timer);
+    };
+  }, [playing, iframeKey]);
+
   return (
     <div className="mx-auto max-w-7xl">
       {/* Header */}
       <div className="mb-6 flex items-center gap-3">
         <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary">
+
           <GraduationCap className="h-5 w-5" />
         </div>
         <div className="min-w-0">
