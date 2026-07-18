@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { CheckCircle2, PlayCircle, X, GraduationCap, BookOpen, ExternalLink, Copy, AlertTriangle } from "lucide-react";
+import { CheckCircle2, PlayCircle, X, GraduationCap, BookOpen, ExternalLink, Copy, AlertTriangle, RefreshCw } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/learn")({
   component: LearnPage,
