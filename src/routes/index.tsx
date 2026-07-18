@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Rocket, ShieldCheck, LineChart, GraduationCap, Menu, X, PlayCircle } from "lucide-react";
-import { Starfield } from "@/components/Starfield";
+import { SpaceCanvas } from "@/components/SpaceCanvas";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
@@ -44,7 +44,9 @@ function Landing() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <Starfield density={180} />
+      <SpaceCanvas />
+      <div className="pointer-events-none fixed inset-0 z-[1] bg-black/30" aria-hidden />
+
 
       {/* Navbar */}
       <header className="relative z-20 px-4 py-4 md:px-12 md:py-5">
@@ -61,6 +63,7 @@ function Landing() {
             <Link to="/" className="hover:text-foreground transition">Home</Link>
             <a href="#features" className="hover:text-foreground transition">Markets</a>
             <a href="#learn" className="hover:text-foreground transition">Learn</a>
+            <Link to="/docs" className="hover:text-foreground transition">Docs</Link>
           </nav>
 
           <div className="hidden md:flex items-center gap-2 shrink-0">
