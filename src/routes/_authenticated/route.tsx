@@ -131,7 +131,7 @@ function AuthedLayout() {
                 <Link to="/portfolio"><User className="mr-2 h-4 w-4" /> Profile</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/dashboard"><Settings className="mr-2 h-4 w-4" /> Settings</Link>
+                <Link to="/settings"><Settings className="mr-2 h-4 w-4" /> Settings</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={signOut} className="text-destructive">
