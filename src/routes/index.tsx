@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Rocket, ShieldCheck, LineChart, GraduationCap, Menu, X, PlayCircle } from "lucide-react";
-import { Starfield } from "@/components/Starfield";
+import { SpaceCanvas } from "@/components/SpaceCanvas";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({
