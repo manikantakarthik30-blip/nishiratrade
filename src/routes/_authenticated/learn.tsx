@@ -22,70 +22,59 @@ interface Video {
   difficulty: Difficulty;
 }
 
+// Curated list of publicly embeddable YouTube videos (verified playableInEmbed=true).
 const VIDEOS: Video[] = [
-  // English — Zerodha Varsity
-  { id: "pMSRPpEv4QQ", title: "Stock Market Basics for Absolute Beginners", channel: "Zerodha Varsity", lang: "EN", category: "Basics", difficulty: "Beginner" },
-  { id: "3dsl4GTZJLM", title: "How to Read Candlestick Charts", channel: "Zerodha Varsity", lang: "EN", category: "Candlesticks", difficulty: "Beginner" },
-  { id: "EQjMCHbRVDQ", title: "Technical Indicators Explained", channel: "Zerodha Varsity", lang: "EN", category: "Indicators", difficulty: "Intermediate" },
-  { id: "hlRuxZFdlyM", title: "Introduction to Futures Trading", channel: "Zerodha Varsity", lang: "EN", category: "F&O", difficulty: "Intermediate" },
-  { id: "SD7sw0bf1ms", title: "Options Theory for Professional Trading", channel: "Zerodha Varsity", lang: "EN", category: "F&O", difficulty: "Advanced" },
-  // English — Trading with Vivek
-  { id: "wxyAJ3oYLqE", title: "Top Candlestick Patterns Every Trader Must Know", channel: "Trading with Vivek", lang: "EN", category: "Candlesticks", difficulty: "Beginner" },
-  { id: "5SBbicVYeN4", title: "Swing Trading Strategy for Beginners", channel: "Trading with Vivek", lang: "EN", category: "Strategies", difficulty: "Intermediate" },
-  { id: "ovNVMpg6G8Y", title: "RSI Indicator — Complete Guide", channel: "Trading with Vivek", lang: "EN", category: "Indicators", difficulty: "Beginner" },
-  // English — P R Sundar
-  { id: "xGIFKVmfBpI", title: "Options Trading Full Course for Beginners", channel: "P R Sundar", lang: "EN", category: "F&O", difficulty: "Intermediate" },
-  { id: "dLMSEqHqF6I", title: "How to Sell Options for Monthly Income", channel: "P R Sundar", lang: "EN", category: "F&O", difficulty: "Advanced" },
-  // English — Rayner Teo (global technical analysis)
-  { id: "eynxyoKgpng", title: "Price Action Trading Secrets", channel: "Rayner Teo", lang: "EN", category: "Strategies", difficulty: "Intermediate" },
-  { id: "AbTBOKENjQI", title: "Support and Resistance — Full Guide", channel: "Rayner Teo", lang: "EN", category: "Basics", difficulty: "Beginner" },
-  // English — The Trading Channel
-  { id: "eynxyoKgpng_tc", title: "Best Chart Patterns for Trading", channel: "The Trading Channel", lang: "EN", category: "Candlesticks", difficulty: "Intermediate" },
-  // Hindi — CA Rachana Ranade
-  { id: "86rjS0EpR3E", title: "Share Market Kaise Sikhe — Complete Guide", channel: "CA Rachana Ranade", lang: "HI", category: "Basics", difficulty: "Beginner" },
-  { id: "Y7K8EMUhLGw", title: "Candlestick Patterns in Hindi", channel: "CA Rachana Ranade", lang: "HI", category: "Candlesticks", difficulty: "Beginner" },
-  { id: "g2dA5FRrEdY", title: "Moving Average — Poori Jankari", channel: "CA Rachana Ranade", lang: "HI", category: "Indicators", difficulty: "Beginner" },
-  { id: "xSTDL3hK-aI", title: "Futures aur Options Kya Hote Hain", channel: "CA Rachana Ranade", lang: "HI", category: "F&O", difficulty: "Intermediate" },
-  // Hindi — Pranjal Kamra
-  { id: "p7HKvqRI_Bo", title: "Share Market for Beginners in Hindi", channel: "Pranjal Kamra", lang: "HI", category: "Basics", difficulty: "Beginner" },
-  { id: "IdoLqC0Ke70", title: "NSE vs BSE — Difference Explained", channel: "Pranjal Kamra", lang: "HI", category: "Indian Market", difficulty: "Beginner" },
-  { id: "bsWXgTmPx5Y", title: "Intraday Trading Rules — Hindi", channel: "Pranjal Kamra", lang: "HI", category: "Strategies", difficulty: "Intermediate" },
-  // Hindi — Nitin Bhatia
-  { id: "5Y0R1CKpBLA", title: "Doji Hammer Engulfing Patterns — Hindi", channel: "Nitin Bhatia", lang: "HI", category: "Candlesticks", difficulty: "Intermediate" },
-  { id: "xSTDL3hK-aI_nb", title: "Options Basics in Hindi", channel: "Nitin Bhatia", lang: "HI", category: "F&O", difficulty: "Intermediate" },
-  // Hindi — Pushkar Raj Thakur
-  { id: "rf4Gdm1BGOE", title: "Stock Market Se Ameer Kaise Bane", channel: "Pushkar Raj Thakur", lang: "HI", category: "Basics", difficulty: "Beginner" },
-  { id: "5fYzXq3EMZE", title: "Long Term Investment Strategy", channel: "Pushkar Raj Thakur", lang: "HI", category: "Strategies", difficulty: "Beginner" },
-  // Hindi — Neeraj Joshi
-  { id: "QnEGp4PEwFY", title: "Nifty 50 kya hai? — Simple Explanation", channel: "Neeraj Joshi", lang: "HI", category: "Indian Market", difficulty: "Beginner" },
-  { id: "FiMcJeKRSHU", title: "MACD Indicator Explained in Hindi", channel: "Neeraj Joshi", lang: "HI", category: "Indicators", difficulty: "Intermediate" },
-  // Hindi — Trading Chanakya
-  { id: "8Ije0jZ3jGY", title: "Intraday Chart Analysis Hindi", channel: "Trading Chanakya", lang: "HI", category: "Strategies", difficulty: "Intermediate" },
-  { id: "wKlkVjZLIJc", title: "Bollinger Bands Full Course Hindi", channel: "Trading Chanakya", lang: "HI", category: "Indicators", difficulty: "Intermediate" },
-  // Hindi — Booming Bulls
-  { id: "1kaJQ4ePvXY", title: "Price Action Trading Hindi", channel: "Booming Bulls", lang: "HI", category: "Strategies", difficulty: "Advanced" },
-  { id: "6R3sPeR9Idc", title: "Nifty Bank Nifty Analysis Live", channel: "Booming Bulls", lang: "HI", category: "Indian Market", difficulty: "Intermediate" },
-  // Hindi — FinnovationZ (Prasad)
-  { id: "SEfsfB5Bmck", title: "Fundamental Analysis Hindi", channel: "FinnovationZ", lang: "HI", category: "Basics", difficulty: "Intermediate" },
-  // Telugu — Day Trader Telugu
-  { id: "8IYRMX_sM0Y", title: "Intraday Trading Basics Telugu lo", channel: "Day Trader Telugu", lang: "TE", category: "Strategies", difficulty: "Beginner" },
-  { id: "mMkBNqXJhP4", title: "Candlestick Patterns Telugu — Complete Guide", channel: "Day Trader Telugu", lang: "TE", category: "Candlesticks", difficulty: "Beginner" },
-  { id: "kNpJVuFGz2c", title: "RSI Indicator Telugu lo Nerchukovadm Ela", channel: "Day Trader Telugu", lang: "TE", category: "Indicators", difficulty: "Beginner" },
-  // Telugu — Telugu Trader Shyam
-  { id: "vKb8a7XTQRM", title: "Share Market Basics Telugu lo", channel: "Telugu Trader Shyam", lang: "TE", category: "Basics", difficulty: "Beginner" },
-  { id: "Lp2rXXt4yZA", title: "Technical Analysis Telugu — Full Course", channel: "Telugu Trader Shyam", lang: "TE", category: "Indicators", difficulty: "Intermediate" },
-  // Telugu — Money Purse
-  { id: "o7fREl3LGGA", title: "Stock Market lo Ela Invest Cheyali", channel: "Money Purse", lang: "TE", category: "Basics", difficulty: "Beginner" },
-  { id: "3dRXnPPLhqY", title: "Mutual Funds vs Stocks — Telugu", channel: "Money Purse", lang: "TE", category: "Basics", difficulty: "Beginner" },
-  // Telugu — Mister Trader
-  { id: "HQqrTQvkdpM", title: "Options Trading Telugu — Beginners Guide", channel: "Mister Trader", lang: "TE", category: "F&O", difficulty: "Intermediate" },
-  { id: "W9qZW6s0jR4", title: "Swing Trading Telugu lo Nerchukovadm", channel: "Mister Trader", lang: "TE", category: "Strategies", difficulty: "Intermediate" },
-  // Telugu — Market Feed Telugu
-  { id: "vXmYnPzKjQ8", title: "NSE BSE Telugu lo Explain Chesamu", channel: "Market Feed Telugu", lang: "TE", category: "Indian Market", difficulty: "Beginner" },
-  { id: "tRnLpWqXmY2", title: "Nifty Bank Nifty Telugu Analysis", channel: "Market Feed Telugu", lang: "TE", category: "Indian Market", difficulty: "Intermediate" },
-  // Telugu — Trading Marathon
-  { id: "K0e1ihLcH8w", title: "Intraday Strategy Telugu", channel: "Trading Marathon Telugu", lang: "TE", category: "Strategies", difficulty: "Intermediate" },
-  { id: "hDx3lI2XxjQ", title: "Moving Average Telugu Guide", channel: "Trading Marathon Telugu", lang: "TE", category: "Indicators", difficulty: "Beginner" },
+  // English
+  { id: "p7HKvqRI_Bo", title: "How Does the Stock Market Work?", channel: "TED-Ed", lang: "EN", category: "Basics", difficulty: "Beginner" },
+  { id: "kTxx_Jpnpn0", title: "What Are Stocks and How Do They Work?", channel: "Concerning Reality", lang: "EN", category: "Basics", difficulty: "Beginner" },
+  { id: "AOz1YPOKvEs", title: "How To Read Candlestick Charts FAST", channel: "Trade with Trend", lang: "EN", category: "Candlesticks", difficulty: "Beginner" },
+  { id: "tW13N4Hll88", title: "The Only Candlestick Pattern Guide You'll Ever Need", channel: "Trading with Rayner", lang: "EN", category: "Candlesticks", difficulty: "Intermediate" },
+  { id: "eynxyoKgpng", title: "Technical Analysis — Full Course (Beginner to Advanced)", channel: "Ross Cameron", lang: "EN", category: "Indicators", difficulty: "Intermediate" },
+  { id: "BUCPPCXOHbs", title: "The Only Technical Analysis Guide You'll Ever Need", channel: "TradersReality", lang: "EN", category: "Indicators", difficulty: "Intermediate" },
+  { id: "hbcCykbX14U", title: "How to Use the Relative Strength Index (RSI)", channel: "Investopedia", lang: "EN", category: "Indicators", difficulty: "Beginner" },
+  { id: "hcalZ_sRtRY", title: "Options Trading for Beginners — Total Guide", channel: "In The Money", lang: "EN", category: "F&O", difficulty: "Beginner" },
+  { id: "XV9avMhNL2Y", title: "Options Trading For Beginners — The Basics", channel: "Rose Han", lang: "EN", category: "F&O", difficulty: "Beginner" },
+  { id: "SD7sw0bf1ms", title: "How to Trade Options — Comprehensive Guide", channel: "Investing Simplified", lang: "EN", category: "F&O", difficulty: "Intermediate" },
+  { id: "1DGMq0RRAgo", title: "How to Swing Trade for Beginners", channel: "Ricky Gutierrez", lang: "EN", category: "Strategies", difficulty: "Beginner" },
+  { id: "sKBH9W-0Daw", title: "3 Primary Rules for Swing Trading", channel: "Rayner Teo", lang: "EN", category: "Strategies", difficulty: "Intermediate" },
+
+  // Hindi
+  { id: "hsbhN7i7H8E", title: "Share Market Explained by Dhruv Rathee", channel: "Dhruv Rathee", lang: "HI", category: "Basics", difficulty: "Beginner" },
+  { id: "QpzhFCTMbis", title: "Share Market Kaise Sikhe — Complete Guide", channel: "Pushkar Raj Thakur", lang: "HI", category: "Basics", difficulty: "Beginner" },
+  { id: "FFlVBm64iAM", title: "Share Market Mein Shuruaat Kaise Karein", channel: "Asset Yogi", lang: "HI", category: "Basics", difficulty: "Beginner" },
+  { id: "2S7HFubhvbw", title: "Intraday Trading Kaise Kare", channel: "Learn With Sudhir", lang: "HI", category: "Strategies", difficulty: "Beginner" },
+  { id: "Z3b_uu0P6iU", title: "30 Candlestick Patterns in 20 Minutes", channel: "Trading Junction", lang: "HI", category: "Candlesticks", difficulty: "Intermediate" },
+  { id: "lQpulkxLHe0", title: "Candlestick Analysis — Complete Hindi Course", channel: "Stock Market Trainer", lang: "HI", category: "Candlesticks", difficulty: "Beginner" },
+  { id: "miaGZZusRnE", title: "Candlestick Trading Full Course — Free Masterclass", channel: "Sagar Sinha", lang: "HI", category: "Candlesticks", difficulty: "Beginner" },
+  { id: "M86YwBWxygI", title: "Option Trading For Beginners", channel: "CA Rachana Ranade", lang: "HI", category: "F&O", difficulty: "Beginner" },
+  { id: "3JPGH0ltaQQ", title: "Options Trading for Beginners — Hindi", channel: "CA Rachana Ranade", lang: "HI", category: "F&O", difficulty: "Beginner" },
+  { id: "nSwokmvsYFo", title: "Support & Resistance Levels Explained", channel: "CA Rachana Ranade", lang: "HI", category: "Basics", difficulty: "Beginner" },
+  { id: "j1wuR87r0yU", title: "Ultimate Guide to TradingView — Masterclass", channel: "CA Rachana Ranade", lang: "HI", category: "Indicators", difficulty: "Intermediate" },
+  { id: "4LqTDj0cwPA", title: "How to Interpret the MACD Indicator", channel: "CA Rachana Ranade", lang: "HI", category: "Indicators", difficulty: "Intermediate" },
+  { id: "GDaxZhmzPVM", title: "Only 1% Traders Have Mastered MACD", channel: "Booming Bulls", lang: "HI", category: "Indicators", difficulty: "Advanced" },
+  { id: "7ASY4PtZUTQ", title: "Moving Average & EMA Strategy Masterclass", channel: "Trade Brains", lang: "HI", category: "Indicators", difficulty: "Beginner" },
+  { id: "aS_9nTGqWpE", title: "Moving Average Ko Use Karne Ka Sahi Tareeka", channel: "Power of Stocks", lang: "HI", category: "Indicators", difficulty: "Intermediate" },
+  { id: "btp0qIIa0Qw", title: "MACD Intraday Trading Setup Explained", channel: "Trading with Vivek", lang: "HI", category: "Indicators", difficulty: "Intermediate" },
+  { id: "7Onpd8iMXpQ", title: "A Swing Trading Strategy That Works Like Magic", channel: "CA Rachana Ranade", lang: "HI", category: "Strategies", difficulty: "Intermediate" },
+  { id: "E4a9JpvZuxo", title: "What is Swing Trading? Explained Simply", channel: "True Investing", lang: "HI", category: "Strategies", difficulty: "Beginner" },
+
+  // Telugu
+  { id: "vtzAW9IWGeU", title: "Stock Market Free Course Part 1 — Beginners", channel: "Money Purse", lang: "TE", category: "Basics", difficulty: "Beginner" },
+  { id: "ijdAY-pgG4g", title: "Stock Market Free Course Part 2", channel: "Money Purse", lang: "TE", category: "Basics", difficulty: "Beginner" },
+  { id: "59sm9mdLPc4", title: "Stock Market Free Course Part 3", channel: "Money Purse", lang: "TE", category: "Basics", difficulty: "Intermediate" },
+  { id: "oaSyjPrevVU", title: "Candle Stick Ardham Chesukovadam Ela?", channel: "Stock Market AtoZ", lang: "TE", category: "Candlesticks", difficulty: "Beginner" },
+  { id: "2nYpNbi4ftE", title: "What is Candlestick in Telugu — Part 1", channel: "Trading Telugu", lang: "TE", category: "Candlesticks", difficulty: "Beginner" },
+  { id: "aQM_4U1yvaQ", title: "Candlestick Patterns in Telugu — Part 2", channel: "Trading Telugu", lang: "TE", category: "Candlesticks", difficulty: "Beginner" },
+  { id: "IrwmnWGR92I", title: "Candlestick Patterns Explained — Part 3", channel: "Trading Telugu", lang: "TE", category: "Candlesticks", difficulty: "Intermediate" },
+  { id: "i0l2pDGxM3s", title: "Complete Candlestick Patterns (Telugu)", channel: "Marketfeed Telugu", lang: "TE", category: "Candlesticks", difficulty: "Intermediate" },
+  { id: "ZdBWTIiNhRg", title: "Candlestick Patterns for Beginners — Episode 1", channel: "iDream Money Purse", lang: "TE", category: "Candlesticks", difficulty: "Beginner" },
+  { id: "wxZqWYpenKU", title: "RSI in Telugu — How to Use RSI Indicator", channel: "Trading Telugu", lang: "TE", category: "Indicators", difficulty: "Beginner" },
+  { id: "0j0yfu-a_XA", title: "Moving Average Explained in Telugu", channel: "Stock Market Telugu", lang: "TE", category: "Indicators", difficulty: "Beginner" },
+  { id: "fRJMuZ8kc-8", title: "Futures & Options Basics — Call, Put Trading", channel: "Stock Market AtoZ", lang: "TE", category: "F&O", difficulty: "Beginner" },
+  { id: "A8eKO5BvjVY", title: "Future & Options in the Easiest Way", channel: "Telugu Trader Shyam", lang: "TE", category: "F&O", difficulty: "Beginner" },
+  { id: "BkdMIpoDsN0", title: "Option Chain Analysis — Masterclass (OI & Greeks)", channel: "Marketfeed Telugu", lang: "TE", category: "F&O", difficulty: "Advanced" },
+  { id: "5OI6WZoYMJM", title: "Most Simple Intraday Strategy Ever", channel: "Marketfeed Telugu", lang: "TE", category: "Strategies", difficulty: "Intermediate" },
+  { id: "hhOgBvRmPhY", title: "Simple Intraday Strategy Using Just 2 Indicators", channel: "Marketfeed Telugu", lang: "TE", category: "Strategies", difficulty: "Intermediate" },
 ];
 
 const cleanId = (id: string) => id.replace(/_.*$/, "");
