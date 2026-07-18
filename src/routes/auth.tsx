@@ -50,6 +50,10 @@ function AuthPage() {
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
 
+  // Verification pending state (shown after signup or when login blocked)
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
   // Signup state
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
@@ -76,7 +80,15 @@ function AuthPage() {
           email: identifier.trim(),
           password,
         });
-        if (error) throw error;
+        if (error) {
+          const msg = error.message.toLowerCase();
+          if (msg.includes("confirm") || msg.includes("not confirmed") || msg.includes("verify")) {
+            setPendingEmail(identifier.trim());
+            toast.error("Please verify your email first. We can resend the link.");
+            return;
+          }
+          throw error;
+        }
       } else {
         const tokens = await doMobileLogin({
           data: { mobile: identifier.trim(), password },
@@ -84,7 +96,6 @@ function AuthPage() {
         const { error } = await supabase.auth.setSession(tokens);
         if (error) throw error;
       }
-      // Note: 'remember' currently maps to Supabase's persistent session (default). Turning it off signs the user out on tab close.
       if (!remember) {
         window.addEventListener(
           "beforeunload",
@@ -130,7 +141,8 @@ function AuthPage() {
         toast.success("Account created. Launching…");
         navigate({ to: "/dashboard" });
       } else {
-        toast.success("Check your email to verify your account.");
+        setPendingEmail(signupEmail.trim());
+        toast.success("Verification email sent. Check your inbox.");
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Signup failed");
@@ -138,6 +150,31 @@ function AuthPage() {
       setLoading(false);
     }
   };
+
+  const onResendVerification = async () => {
+    if (!pendingEmail || resendCooldown > 0) return;
+    setLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: pendingEmail,
+      options: { emailRedirectTo: window.location.origin + "/dashboard" },
+    });
+    setLoading(false);
+    if (error) return toast.error(error.message);
+    toast.success("Verification email resent.");
+    setResendCooldown(45);
+    const iv = setInterval(() => {
+      setResendCooldown((s) => {
+        if (s <= 1) {
+          clearInterval(iv);
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+  };
+
+
 
   const onGoogle = async () => {
     setLoading(true);
@@ -183,17 +220,51 @@ function AuthPage() {
         className="glass relative z-10 w-full max-w-md rounded-2xl p-6 shadow-[var(--shadow-glow)] sm:p-8"
       >
         <h1 className="text-center font-display text-2xl font-bold">
-          {forgotOpen ? "Reset your password" : mode === "signup" ? "Create your account" : "Welcome back"}
+          {pendingEmail
+            ? "Verify your email"
+            : forgotOpen
+              ? "Reset your password"
+              : mode === "signup"
+                ? "Create your account"
+                : "Welcome back"}
         </h1>
         <p className="mt-1 text-center text-sm text-muted-foreground">
-          {forgotOpen
-            ? "We'll email you a secure reset link."
-            : mode === "signup"
-              ? "Practice the market. Risk nothing. Learn everything."
-              : "Welcome back to NISHIRA.TRADE."}
+          {pendingEmail
+            ? `We sent a verification link to ${pendingEmail}. Click it to activate your account, then sign in.`
+            : forgotOpen
+              ? "We'll email you a secure reset link."
+              : mode === "signup"
+                ? "Practice the market. Risk nothing. Learn everything."
+                : "Welcome back to NISHIRA.TRADE."}
         </p>
 
-        {forgotOpen ? (
+        {pendingEmail ? (
+          <div className="mt-6 space-y-4">
+            <div className="rounded-lg border border-border/60 bg-muted/20 p-4 text-xs text-muted-foreground">
+              Didn't get the email? Check your spam folder. Links can take a minute to arrive.
+              Some providers block unverified senders — if nothing comes through, try a different email.
+            </div>
+            <Button
+              type="button"
+              className="w-full"
+              onClick={onResendVerification}
+              disabled={loading || resendCooldown > 0}
+            >
+              {resendCooldown > 0
+                ? `Resend in ${resendCooldown}s`
+                : loading
+                  ? "Sending…"
+                  : "Resend verification email"}
+            </Button>
+            <button
+              type="button"
+              onClick={() => setPendingEmail(null)}
+              className="w-full text-center text-xs text-muted-foreground hover:text-primary"
+            >
+              ← Back to sign in
+            </button>
+          </div>
+        ) : forgotOpen ? (
           <form onSubmit={onForgot} className="mt-6 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="fpw-email">Email</Label>
@@ -209,6 +280,9 @@ function AuthPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Sending…" : "Send reset link"}
             </Button>
+            <p className="text-center text-[11px] text-muted-foreground">
+              If you don't see it within a minute, check spam. The link expires in 1 hour.
+            </p>
             <button
               type="button"
               onClick={() => setForgotOpen(false)}
