@@ -71,16 +71,16 @@ function Dashboard() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-4 md:space-y-6">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="font-display text-3xl font-bold">
+        <h1 className="font-display text-xl font-bold md:text-3xl">
           Welcome, <span className="text-primary">{profile?.username ?? "trader"}</span>
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">Welcome to NISHIRA.TRADE — your portfolio at a glance.</p>
+        <p className="mt-1 text-xs text-muted-foreground md:text-sm">Welcome to NISHIRA.TRADE — your portfolio at a glance.</p>
       </motion.div>
 
-      {/* Balance cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Balance cards — 2x2 on mobile, 4 on desktop */}
+      <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
         <BalanceCard
           icon={<IndianRupee className="h-4 w-4" />}
           label="INR Balance"
@@ -258,13 +258,13 @@ function BalanceCard({
   positive?: boolean;
 }) {
   return (
-    <Card className="glass p-5">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+    <Card className="glass p-3 md:p-5">
+      <div className="flex items-center gap-2 text-[10px] text-muted-foreground md:text-xs">
         {icon}
-        {label}
+        <span className="truncate">{label}</span>
       </div>
-      <div className="mt-2 font-display text-2xl font-bold">{value}</div>
-      {sub && <div className={`mt-1 text-xs ${positive ? "text-success" : "text-destructive"}`}>{sub}</div>}
+      <div className="mt-1 font-display text-base font-bold md:mt-2 md:text-2xl">{value}</div>
+      {sub && <div className={`mt-1 truncate text-[10px] md:text-xs ${positive ? "text-success" : "text-destructive"}`}>{sub}</div>}
     </Card>
   );
 }

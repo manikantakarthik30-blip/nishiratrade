@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, TrendingUp, TrendingDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -17,11 +17,25 @@ export const Route = createFileRoute("/_authenticated/markets")({
 
 type Filter = "all" | "IN" | "US" | "gainers" | "losers";
 
+const INITIAL_LIMIT = 10;
+
 function MarketsPage() {
   useTicker();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [selected, setSelected] = useState<string | null>(null);
+  const [limit, setLimit] = useState(INITIAL_LIMIT);
+  const [booted, setBooted] = useState(false);
+
+  useEffect(() => {
+    // brief skeleton so the UI paints instantly
+    const t = setTimeout(() => setBooted(true), 150);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    setLimit(INITIAL_LIMIT);
+  }, [filter, q]);
 
   const filtered = STOCKS.filter((s) => {
     if (q && !s.ticker.toLowerCase().includes(q.toLowerCase()) && !s.name.toLowerCase().includes(q.toLowerCase())) return false;
@@ -33,15 +47,18 @@ function MarketsPage() {
   if (filter === "gainers") display = [...filtered].sort((a, b) => b.pct - a.pct).slice(0, 10);
   if (filter === "losers") display = [...filtered].sort((a, b) => a.pct - b.pct).slice(0, 10);
 
+  const visible = display.slice(0, limit);
+  const canLoadMore = display.length > visible.length;
+
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-4 md:space-y-6">
       <div>
-        <h1 className="font-display text-3xl font-bold">Markets</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Real data, fake money. Prices update every 3 seconds.</p>
+        <h1 className="font-display text-xl font-bold md:text-3xl">Markets</h1>
+        <p className="mt-1 text-xs text-muted-foreground md:text-sm">Real data, fake money. Prices update every 3 seconds.</p>
       </div>
 
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)} className="-mx-4 overflow-x-auto px-4 md:mx-0 md:overflow-visible md:px-0">
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)} className="-mx-3 overflow-x-auto px-3 md:mx-0 md:overflow-visible md:px-0">
           <TabsList className="w-max">
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="IN">🇮🇳 Indian</TabsTrigger>
@@ -50,56 +67,70 @@ function MarketsPage() {
             <TabsTrigger value="losers">📉 Losers</TabsTrigger>
           </TabsList>
         </Tabs>
-        <div className="relative max-w-md md:flex-1 md:max-w-xs md:ml-auto">
+        <div className="relative md:max-w-xs md:flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search RELIANCE, AAPL..." className="pl-9" />
         </div>
       </div>
 
-
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {display.map((s) => (
-          <motion.div
-            key={s.ticker}
-            layout
-            whileHover={{ y: -4 }}
-            className="glass rounded-xl p-4 transition-shadow hover:shadow-[var(--shadow-glow)]"
-          >
-            <div onClick={() => setSelected(s.ticker)} className="cursor-pointer">
-              <div className="flex items-start justify-between">
-                <div className="min-w-0">
-                  <div className="truncate font-bold">{s.name}</div>
-                  <div className="mt-0.5 text-xs text-muted-foreground">{s.ticker}</div>
-                </div>
-                <span className="shrink-0 rounded-full border border-border/50 px-2 py-0.5 text-[10px] uppercase text-muted-foreground">
-                  {s.market}
-                </span>
-              </div>
-              <div className="mt-3 flex items-end justify-between gap-2">
-                <div>
-                  <div className="font-display text-xl font-bold tabular-nums">{formatMoney(s.price, s.currency)}</div>
-                  <div className={`mt-0.5 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-semibold ${s.pct >= 0 ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
-                    {s.pct >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                    {s.pct.toFixed(2)}%
+        {!booted &&
+          Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-32 animate-pulse rounded-xl bg-[#1a1a2e] p-4">
+              <div className="mb-2 h-4 w-1/2 rounded bg-[#2a2a4e]" />
+              <div className="mb-2 h-6 w-1/3 rounded bg-[#2a2a4e]" />
+              <div className="h-3 w-1/4 rounded bg-[#2a2a4e]" />
+            </div>
+          ))}
+        {booted &&
+          visible.map((s) => (
+            <motion.div
+              key={s.ticker}
+              layout
+              whileHover={{ y: -4 }}
+              className="glass rounded-xl p-4 transition-shadow hover:shadow-[var(--shadow-glow)]"
+            >
+              <div onClick={() => setSelected(s.ticker)} className="cursor-pointer">
+                <div className="flex items-start justify-between">
+                  <div className="min-w-0">
+                    <div className="truncate font-bold">{s.name}</div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">{s.ticker}</div>
                   </div>
+                  <span className="shrink-0 rounded-full border border-border/50 px-2 py-0.5 text-[10px] uppercase text-muted-foreground">
+                    {s.market}
+                  </span>
                 </div>
-                <Sparkline ticker={s.ticker} />
+                <div className="mt-3 flex items-end justify-between gap-2">
+                  <div>
+                    <div className="font-display text-xl font-bold tabular-nums">{formatMoney(s.price, s.currency)}</div>
+                    <div className={`mt-0.5 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-semibold ${s.pct >= 0 ? "bg-success/15 text-success" : "bg-destructive/15 text-destructive"}`}>
+                      {s.pct >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                      {s.pct.toFixed(2)}%
+                    </div>
+                  </div>
+                  <Sparkline ticker={s.ticker} />
+                </div>
               </div>
-            </div>
-            <div className="mt-3 flex gap-2">
-              <Button asChild size="sm" className="flex-1">
-                <Link to="/trade/$ticker" params={{ ticker: s.ticker }}>Trade</Link>
-              </Button>
-              <Button asChild size="sm" variant="outline" className="flex-1">
-                <Link to="/chart" search={{ symbol: s.ticker }}>Chart</Link>
-              </Button>
-            </div>
-          </motion.div>
-        ))}
+              <div className="mt-3 flex gap-2">
+                <Button asChild size="sm" className="flex-1">
+                  <Link to="/trade/$ticker" params={{ ticker: s.ticker }}>Trade</Link>
+                </Button>
+                <Button asChild size="sm" variant="outline" className="flex-1">
+                  <Link to="/chart" search={{ symbol: s.ticker }}>Chart</Link>
+                </Button>
+              </div>
+            </motion.div>
+          ))}
       </div>
 
+      {booted && canLoadMore && (
+        <div className="flex justify-center">
+          <Button variant="outline" onClick={() => setLimit((l) => l + 10)}>
+            Load more ({display.length - visible.length})
+          </Button>
+        </div>
+      )}
 
-      {/* Detail side panel */}
       <AnimatePresence>
         {selected && <StockPanel ticker={selected} onClose={() => setSelected(null)} />}
       </AnimatePresence>

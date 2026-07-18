@@ -66,10 +66,10 @@ function PortfolioPage() {
   const pieDataUsd = enriched.filter((e) => e.market === "US").map((e) => ({ name: e.ticker, value: e.value }));
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-4 md:space-y-6">
       <div>
-        <h1 className="font-display text-3xl font-bold">Portfolio</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Your current holdings, allocation, and P&L.</p>
+        <h1 className="font-display text-xl font-bold md:text-3xl">Portfolio</h1>
+        <p className="mt-1 text-xs text-muted-foreground md:text-sm">Your current holdings, allocation, and P&L.</p>
       </div>
 
       {/* Summary cards */}
@@ -193,15 +193,17 @@ function AllocationCard({ title, data }: { title: string; data: { name: string; 
       {data.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">No holdings.</p>
       ) : (
-        <ResponsiveContainer width="100%" height={280}>
-          <PieChart>
-            <Pie data={data} dataKey="value" nameKey="name" innerRadius={60} outerRadius={100} paddingAngle={2}>
-              {data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-            </Pie>
-            <Tooltip contentStyle={{ background: "hsl(240 30% 12%)", border: "1px solid hsl(240 30% 20%)", borderRadius: 8 }} />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
+        <div className="mx-auto max-w-[300px]">
+          <ResponsiveContainer width="100%" height={280}>
+            <PieChart>
+              <Pie data={data} dataKey="value" nameKey="name" innerRadius={60} outerRadius={100} paddingAngle={2}>
+                {data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+              </Pie>
+              <Tooltip contentStyle={{ background: "hsl(240 30% 12%)", border: "1px solid hsl(240 30% 20%)", borderRadius: 8 }} />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
       )}
     </Card>
   );

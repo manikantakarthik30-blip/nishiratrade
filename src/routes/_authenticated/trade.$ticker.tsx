@@ -1,11 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Minus, Plus } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,7 +43,7 @@ function TradePage() {
 
   if (!stock) {
     return (
-      <div className="mx-auto max-w-2xl text-center">
+      <div className="mx-auto max-w-2xl p-8 text-center">
         <h1 className="font-display text-2xl">Unknown ticker</h1>
         <Button asChild className="mt-4"><Link to="/markets">Back to markets</Link></Button>
       </div>
@@ -86,118 +84,121 @@ function TradePage() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl space-y-4">
-      <Button asChild variant="ghost" size="sm">
-        <Link to="/markets"><ArrowLeft className="mr-1 h-4 w-4" /> Back to markets</Link>
-      </Button>
+    <div
+      className="flex flex-col md:flex-row md:h-[calc(100vh-60px)]"
+      style={{ minHeight: "calc(100vh - 60px)" }}
+    >
+      {/* Left: chart 70% */}
+      <div className="flex flex-col md:w-[70%]">
+        <div className="flex h-10 shrink-0 items-center justify-between border-b border-border/40 px-3 text-sm">
+          <div className="flex min-w-0 items-center gap-2">
+            <Button asChild variant="ghost" size="sm" className="h-7 px-2">
+              <Link to="/markets"><ArrowLeft className="mr-1 h-3.5 w-3.5" /> Back</Link>
+            </Button>
+            <span className="truncate font-semibold">{stock.name}</span>
+            <span className="text-xs text-muted-foreground">({stock.ticker})</span>
+          </div>
+          <div className="flex shrink-0 items-center gap-2 text-right">
+            <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-success" />
+            <span className="font-bold tabular-nums">{formatMoney(price, stock.currency)}</span>
+            <span className={pct >= 0 ? "text-success" : "text-destructive"}>
+              {pct >= 0 ? "▲" : "▼"} {pct.toFixed(2)}%
+            </span>
+          </div>
+        </div>
+        <div className="h-[300px] w-full md:h-auto md:flex-1">
+          <TvWidget symbol={stock.ticker} height="100%" />
+        </div>
+      </div>
 
-      <div className="grid gap-4 lg:grid-cols-5">
-        {/* Chart */}
-        <Card className="glass p-3 lg:col-span-3">
-          <div className="mb-2 flex items-center justify-between px-1">
-            <div className="min-w-0">
-              <div className="text-xs uppercase text-muted-foreground">{stock.market} • {stock.currency}</div>
-              <div className="truncate font-display text-lg font-bold">{stock.name} <span className="text-muted-foreground">({stock.ticker})</span></div>
-            </div>
-            <div className="text-right">
-              <div className="flex items-center justify-end gap-2 font-display text-2xl font-bold tabular-nums glow-text">
-                <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-success shadow-[0_0_8px_#22c55e]" />
-                {formatMoney(price, stock.currency)}
-              </div>
-              <div className={`text-sm font-medium ${pct >= 0 ? "text-success" : "text-destructive"}`}>
-                {pct >= 0 ? "▲" : "▼"} {pct.toFixed(2)}%
-              </div>
+      {/* Right: order panel 30% */}
+      <div
+        className="flex flex-col border-t md:w-[30%] md:border-l md:border-t-0"
+        style={{ background: "#0d0d1a", borderColor: "#1a1a2e" }}
+      >
+        <div className="flex-1 space-y-4 overflow-y-auto p-5 pb-4">
+          <div className="grid grid-cols-2 rounded-lg border border-border/50 p-1">
+            <button
+              onClick={() => setSide("BUY")}
+              className={`rounded-md py-2 text-sm font-semibold transition ${side === "BUY" ? "bg-success text-success-foreground shadow-[0_0_20px_rgba(34,197,94,0.4)]" : "text-muted-foreground"}`}
+            >BUY</button>
+            <button
+              onClick={() => setSide("SELL")}
+              className={`rounded-md py-2 text-sm font-semibold transition ${side === "SELL" ? "bg-destructive text-destructive-foreground shadow-[0_0_20px_rgba(239,68,68,0.4)]" : "text-muted-foreground"}`}
+            >SELL</button>
+          </div>
+
+          <div>
+            <Label className="text-xs uppercase text-muted-foreground">Order Type</Label>
+            <div className="mt-1 grid grid-cols-2 rounded-lg border border-border/50 p-1">
+              {(["MARKET", "LIMIT"] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setOrderType(t)}
+                  className={`rounded-md py-1.5 text-xs font-semibold transition ${orderType === t ? "bg-primary/20 text-primary" : "text-muted-foreground"}`}
+                >{t}</button>
+              ))}
             </div>
           </div>
-          <TvWidget symbol={stock.ticker} height={350} />
-        </Card>
 
-        {/* Order form */}
-        <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="lg:col-span-2">
-          <Card className="glass p-5">
-            <div className="mb-4 grid grid-cols-2 rounded-lg border border-border/50 p-1">
-              <button
-                onClick={() => setSide("BUY")}
-                className={`rounded-md py-2 text-sm font-semibold transition ${side === "BUY" ? "bg-success text-success-foreground shadow-[0_0_20px_rgba(34,197,94,0.4)]" : "text-muted-foreground"}`}
-              >BUY</button>
-              <button
-                onClick={() => setSide("SELL")}
-                className={`rounded-md py-2 text-sm font-semibold transition ${side === "SELL" ? "bg-destructive text-destructive-foreground shadow-[0_0_20px_rgba(239,68,68,0.4)]" : "text-muted-foreground"}`}
-              >SELL</button>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <Label className="text-xs uppercase text-muted-foreground">Order Type</Label>
-                <div className="mt-1 grid grid-cols-2 rounded-lg border border-border/50 p-1">
-                  {(["MARKET", "LIMIT"] as const).map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => setOrderType(t)}
-                      className={`rounded-md py-1.5 text-xs font-semibold transition ${orderType === t ? "bg-primary/20 text-primary" : "text-muted-foreground"}`}
-                    >{t}</button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="qty" className="text-xs uppercase text-muted-foreground">Quantity</Label>
-                <div className="mt-1 flex items-center gap-2">
-                  <Button type="button" variant="outline" size="icon" className="h-9 w-9" onClick={() => setQty((q) => Math.max(1, q - 1))}>
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <Input id="qty" type="number" min={1} value={qty} onChange={(e) => setQty(Math.max(1, Number(e.target.value)))} className="text-center" />
-                  <Button type="button" variant="outline" size="icon" className="h-9 w-9" onClick={() => setQty((q) => q + 1)}>
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              {orderType === "LIMIT" && (
-                <div>
-                  <Label htmlFor="lim" className="text-xs uppercase text-muted-foreground">Limit Price</Label>
-                  <Input id="lim" type="number" min={0} step="0.01" value={limitPrice || ""} placeholder={String(price)} onChange={(e) => setLimitPrice(Number(e.target.value))} />
-                </div>
-              )}
-
-              <div className="rounded-lg border border-border/40 bg-muted/30 p-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Est. Cost</span>
-                  <span className="font-semibold tabular-nums">{formatMoney(cost, stock.currency)}</span>
-                </div>
-                <div className="mt-1 flex justify-between">
-                  <span className="text-muted-foreground">Brokerage (0.1%)</span>
-                  <span className="tabular-nums">{formatMoney(brokerage, stock.currency)}</span>
-                </div>
-                <div className="mt-2 flex justify-between border-t border-border/40 pt-2">
-                  <span className="text-muted-foreground">Total</span>
-                  <span className="font-bold tabular-nums">{formatMoney(total, stock.currency)}</span>
-                </div>
-                <div className="mt-2 flex justify-between text-xs">
-                  <span className="text-muted-foreground">Available</span>
-                  <span className="tabular-nums">{formatMoney(balance, stock.currency)}</span>
-                </div>
-                <div className="mt-1 flex justify-between text-xs">
-                  <span className="text-muted-foreground">Holdings</span>
-                  <span className="tabular-nums">{Number(holding?.qty ?? 0)}</span>
-                </div>
-              </div>
-
-              <Button
-                onClick={handleSubmit}
-                disabled={!canSubmit || submitting}
-                size="lg"
-                className={`w-full font-semibold ${
-                  side === "BUY"
-                    ? "bg-success text-success-foreground shadow-[0_0_24px_rgba(34,197,94,0.45)] hover:bg-success/90"
-                    : "bg-destructive text-destructive-foreground shadow-[0_0_24px_rgba(239,68,68,0.45)] hover:bg-destructive/90"
-                }`}
-              >
-                {submitting ? "Placing..." : `Place ${side} Order`}
+          <div>
+            <Label htmlFor="qty" className="text-xs uppercase text-muted-foreground">Quantity</Label>
+            <div className="mt-1 flex items-center gap-2">
+              <Button type="button" variant="outline" size="icon" className="h-9 w-9" onClick={() => setQty((q) => Math.max(1, q - 1))}>
+                <Minus className="h-4 w-4" />
+              </Button>
+              <Input id="qty" type="number" min={1} value={qty} onChange={(e) => setQty(Math.max(1, Number(e.target.value)))} className="text-center" />
+              <Button type="button" variant="outline" size="icon" className="h-9 w-9" onClick={() => setQty((q) => q + 1)}>
+                <Plus className="h-4 w-4" />
               </Button>
             </div>
-          </Card>
-        </motion.div>
+          </div>
+
+          {orderType === "LIMIT" && (
+            <div>
+              <Label htmlFor="lim" className="text-xs uppercase text-muted-foreground">Limit Price</Label>
+              <Input id="lim" type="number" min={0} step="0.01" value={limitPrice || ""} placeholder={String(price)} onChange={(e) => setLimitPrice(Number(e.target.value))} />
+            </div>
+          )}
+
+          <div className="rounded-lg border border-border/40 bg-muted/30 p-3 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Est. Cost</span>
+              <span className="font-semibold tabular-nums">{formatMoney(cost, stock.currency)}</span>
+            </div>
+            <div className="mt-1 flex justify-between">
+              <span className="text-muted-foreground">Brokerage (0.1%)</span>
+              <span className="tabular-nums">{formatMoney(brokerage, stock.currency)}</span>
+            </div>
+            <div className="mt-2 flex justify-between border-t border-border/40 pt-2">
+              <span className="text-muted-foreground">Total</span>
+              <span className="font-bold tabular-nums">{formatMoney(total, stock.currency)}</span>
+            </div>
+            <div className="mt-2 flex justify-between text-xs">
+              <span className="text-muted-foreground">Available</span>
+              <span className="tabular-nums">{formatMoney(balance, stock.currency)}</span>
+            </div>
+            <div className="mt-1 flex justify-between text-xs">
+              <span className="text-muted-foreground">Holdings</span>
+              <span className="tabular-nums">{Number(holding?.qty ?? 0)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="sticky bottom-0 border-t border-border/40 bg-[#0d0d1a] p-4">
+          <Button
+            onClick={handleSubmit}
+            disabled={!canSubmit || submitting}
+            size="lg"
+            className={`w-full font-semibold ${
+              side === "BUY"
+                ? "bg-success text-success-foreground shadow-[0_0_24px_rgba(34,197,94,0.45)] hover:bg-success/90"
+                : "bg-destructive text-destructive-foreground shadow-[0_0_24px_rgba(239,68,68,0.45)] hover:bg-destructive/90"
+            }`}
+          >
+            {submitting ? "Placing..." : `Place ${side} Order`}
+          </Button>
+        </div>
       </div>
     </div>
   );
