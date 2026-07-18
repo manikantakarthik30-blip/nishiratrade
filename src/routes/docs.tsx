@@ -75,24 +75,24 @@ function DocsPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "#050418" }}>
+    <div className="docs-container min-h-screen overflow-x-hidden" style={{ background: "#050418" }}>
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-border/40 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6">
-          <Link to="/" className="flex items-center gap-2">
-            <Rocket className="h-5 w-5 text-primary" />
-            <span className="font-display text-sm font-bold md:text-base">
+          <Link to="/" className="flex min-w-0 items-center gap-2">
+            <Rocket className="h-5 w-5 shrink-0 text-primary" />
+            <span className="truncate font-display text-sm font-bold md:text-base">
               NISHIRA<span className="text-primary">.TRADE</span>
             </span>
           </Link>
-          <nav className="flex items-center gap-4 text-sm">
+          <nav className="flex shrink-0 items-center gap-4 text-sm">
             <Link to="/" className="text-muted-foreground hover:text-foreground">Home</Link>
             <Link to="/dashboard" className="text-primary hover:underline">Open App →</Link>
           </nav>
         </div>
       </header>
 
-      <div className="mx-auto flex max-w-7xl gap-8 px-4 py-8 md:px-6">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:flex-row md:gap-8 md:px-6 md:py-8">
         {/* Desktop TOC */}
         <aside className="sticky top-20 hidden h-[calc(100vh-6rem)] w-[220px] shrink-0 md:block">
           <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -109,34 +109,34 @@ function DocsPage() {
                     : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
                 }`}
               >
-                <s.icon className="h-4 w-4" />
-                {s.title}
+                <s.icon className="h-4 w-4 shrink-0" />
+                <span className="truncate">{s.title}</span>
               </button>
             ))}
           </nav>
         </aside>
 
         {/* Mobile TOC dropdown */}
-        <div className="md:hidden">
+        <div className="w-full md:hidden">
           <select
             value={active}
             onChange={(e) => {
               setActive(e.target.value);
               scrollTo(e.target.value);
             }}
-            className="w-full rounded-md border border-border/50 bg-background px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-border/50 bg-[#0d0d1a] p-3 text-sm text-foreground"
           >
-            {sections.map((s) => (
-              <option key={s.id} value={s.id}>{s.title}</option>
+            {sections.map((s, i) => (
+              <option key={s.id} value={s.id}>{i + 1}. {s.title}</option>
             ))}
           </select>
         </div>
 
         {/* Content */}
-        <main className="min-w-0 flex-1 space-y-16 text-foreground/90">
+        <main className="docs-content min-w-0 max-w-full flex-1 space-y-12 break-words text-sm text-foreground/90 md:space-y-16 md:text-base">
           <div>
-            <h1 className="font-display text-3xl font-bold md:text-4xl">Documentation</h1>
-            <p className="mt-2 text-muted-foreground">Everything you need to master paper trading on NISHIRA.TRADE.</p>
+            <h1 className="font-display text-2xl font-bold md:text-4xl">Documentation</h1>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Everything you need to master paper trading on NISHIRA.TRADE.</p>
           </div>
 
           <section id="getting-started" className="scroll-mt-24">
