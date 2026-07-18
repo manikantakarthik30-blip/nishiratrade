@@ -18,3 +18,18 @@ export const getOHLCV = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     return fetchOHLCV(data.ticker, data.market, process.env.ALPHA_VANTAGE_KEY ?? undefined);
   });
+
+const ltpSchema = z.object({ tickers: z.array(z.string().min(1).max(16)).max(30) });
+
+/** Real-time LTP for Indian stocks via AngelOne SmartAPI. Returns {} on failure. */
+export const getIndianLTP = createServerFn({ method: "POST" })
+  .inputValidator((raw: unknown) => ltpSchema.parse(raw))
+  .handler(async ({ data }) => {
+    try {
+      const { fetchLTPs } = await import("@/lib/angelone.server");
+      return await fetchLTPs(data.tickers);
+    } catch (err) {
+      console.error("[angelone] LTP failed:", err instanceof Error ? err.message : err);
+      return {} as Record<string, number>;
+    }
+  });
