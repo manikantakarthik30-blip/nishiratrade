@@ -50,6 +50,10 @@ function AuthPage() {
   const [forgotOpen, setForgotOpen] = useState(false);
   const [forgotEmail, setForgotEmail] = useState("");
 
+  // Verification pending state (shown after signup or when login blocked)
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
   // Signup state
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
