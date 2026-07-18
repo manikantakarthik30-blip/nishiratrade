@@ -466,16 +466,37 @@ function LearnPage() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
+            <div className="relative w-full bg-black" style={{ aspectRatio: "16/9" }}>
               <iframe
                 title={playing.title}
-                src={`https://www.youtube.com/embed/${playing.id.replace(/_.*$/, "")}?autoplay=1`}
+                src={`https://www.youtube.com/embed/${cleanId(playing.id)}?autoplay=1`}
                 allow="autoplay; encrypted-media; picture-in-picture"
                 allowFullScreen
                 className="absolute inset-0 h-full w-full"
               />
             </div>
-            <div className="flex items-center justify-end gap-2 border-t border-border/40 px-4 py-3">
+            <div className="border-t border-yellow-500/20 bg-yellow-500/5 px-4 py-2 text-[11px] text-yellow-200/90 flex items-start gap-2">
+              <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+              <span>Video not loading? Some videos block embeds. Copy the link or open on YouTube.</span>
+            </div>
+            <div className="flex flex-wrap items-center justify-end gap-2 border-t border-border/40 px-4 py-3">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(youtubeUrl(playing.id));
+                  toast.success("YouTube link copied");
+                }}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border/60 px-3 py-1.5 text-sm font-medium hover:bg-muted/40"
+              >
+                <Copy className="h-4 w-4" /> Copy link
+              </button>
+              <a
+                href={youtubeUrl(playing.id)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-md border border-border/60 px-3 py-1.5 text-sm font-medium hover:bg-muted/40"
+              >
+                <ExternalLink className="h-4 w-4" /> Open on YouTube
+              </a>
               <button
                 onClick={() => { mark(playing.id); setPlaying(null); }}
                 className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/20 px-3 py-1.5 text-sm font-medium text-emerald-300 hover:bg-emerald-500/30"
