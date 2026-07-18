@@ -274,6 +274,9 @@ function LearnPage() {
   const [catTab, setCatTab] = useState<Category>("All");
   const { watched, toggle, mark } = useWatched();
   const [playing, setPlaying] = useState<Video | null>(null);
+  const [embedError, setEmbedError] = useState<null | { code?: number; message: string }>(null);
+  const [embedReady, setEmbedReady] = useState(false);
+  const [iframeKey, setIframeKey] = useState(0);
 
   // Pattern filter
   const [patternFilter, setPatternFilter] = useState<"All" | PatternType>("All");
