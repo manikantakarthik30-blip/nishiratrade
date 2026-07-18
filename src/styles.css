@@ -187,3 +187,27 @@
 .animate-pulse-glow {
   animation: pulse-glow 2.6s ease-in-out infinite;
 }
+
+.docs-container {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+.docs-content {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+.docs-content * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.docs-content pre,
+.docs-content code {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.docs-content table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}
