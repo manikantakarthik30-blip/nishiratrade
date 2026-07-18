@@ -220,17 +220,51 @@ function AuthPage() {
         className="glass relative z-10 w-full max-w-md rounded-2xl p-6 shadow-[var(--shadow-glow)] sm:p-8"
       >
         <h1 className="text-center font-display text-2xl font-bold">
-          {forgotOpen ? "Reset your password" : mode === "signup" ? "Create your account" : "Welcome back"}
+          {pendingEmail
+            ? "Verify your email"
+            : forgotOpen
+              ? "Reset your password"
+              : mode === "signup"
+                ? "Create your account"
+                : "Welcome back"}
         </h1>
         <p className="mt-1 text-center text-sm text-muted-foreground">
-          {forgotOpen
-            ? "We'll email you a secure reset link."
-            : mode === "signup"
-              ? "Practice the market. Risk nothing. Learn everything."
-              : "Welcome back to NISHIRA.TRADE."}
+          {pendingEmail
+            ? `We sent a verification link to ${pendingEmail}. Click it to activate your account, then sign in.`
+            : forgotOpen
+              ? "We'll email you a secure reset link."
+              : mode === "signup"
+                ? "Practice the market. Risk nothing. Learn everything."
+                : "Welcome back to NISHIRA.TRADE."}
         </p>
 
-        {forgotOpen ? (
+        {pendingEmail ? (
+          <div className="mt-6 space-y-4">
+            <div className="rounded-lg border border-border/60 bg-muted/20 p-4 text-xs text-muted-foreground">
+              Didn't get the email? Check your spam folder. Links can take a minute to arrive.
+              Some providers block unverified senders — if nothing comes through, try a different email.
+            </div>
+            <Button
+              type="button"
+              className="w-full"
+              onClick={onResendVerification}
+              disabled={loading || resendCooldown > 0}
+            >
+              {resendCooldown > 0
+                ? `Resend in ${resendCooldown}s`
+                : loading
+                  ? "Sending…"
+                  : "Resend verification email"}
+            </Button>
+            <button
+              type="button"
+              onClick={() => setPendingEmail(null)}
+              className="w-full text-center text-xs text-muted-foreground hover:text-primary"
+            >
+              ← Back to sign in
+            </button>
+          </div>
+        ) : forgotOpen ? (
           <form onSubmit={onForgot} className="mt-6 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="fpw-email">Email</Label>
@@ -246,6 +280,9 @@ function AuthPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Sending…" : "Send reset link"}
             </Button>
+            <p className="text-center text-[11px] text-muted-foreground">
+              If you don't see it within a minute, check spam. The link expires in 1 hour.
+            </p>
             <button
               type="button"
               onClick={() => setForgotOpen(false)}
