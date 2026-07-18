@@ -75,24 +75,24 @@ function DocsPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "#050418" }}>
+    <div className="docs-container min-h-screen overflow-x-hidden" style={{ background: "#050418" }}>
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-border/40 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6">
-          <Link to="/" className="flex items-center gap-2">
-            <Rocket className="h-5 w-5 text-primary" />
-            <span className="font-display text-sm font-bold md:text-base">
+          <Link to="/" className="flex min-w-0 items-center gap-2">
+            <Rocket className="h-5 w-5 shrink-0 text-primary" />
+            <span className="truncate font-display text-sm font-bold md:text-base">
               NISHIRA<span className="text-primary">.TRADE</span>
             </span>
           </Link>
-          <nav className="flex items-center gap-4 text-sm">
+          <nav className="flex shrink-0 items-center gap-4 text-sm">
             <Link to="/" className="text-muted-foreground hover:text-foreground">Home</Link>
             <Link to="/dashboard" className="text-primary hover:underline">Open App →</Link>
           </nav>
         </div>
       </header>
 
-      <div className="mx-auto flex max-w-7xl gap-8 px-4 py-8 md:px-6">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 md:flex-row md:gap-8 md:px-6 md:py-8">
         {/* Desktop TOC */}
         <aside className="sticky top-20 hidden h-[calc(100vh-6rem)] w-[220px] shrink-0 md:block">
           <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -109,38 +109,38 @@ function DocsPage() {
                     : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
                 }`}
               >
-                <s.icon className="h-4 w-4" />
-                {s.title}
+                <s.icon className="h-4 w-4 shrink-0" />
+                <span className="truncate">{s.title}</span>
               </button>
             ))}
           </nav>
         </aside>
 
         {/* Mobile TOC dropdown */}
-        <div className="md:hidden">
+        <div className="w-full md:hidden">
           <select
             value={active}
             onChange={(e) => {
               setActive(e.target.value);
               scrollTo(e.target.value);
             }}
-            className="w-full rounded-md border border-border/50 bg-background px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-border/50 bg-[#0d0d1a] p-3 text-sm text-foreground"
           >
-            {sections.map((s) => (
-              <option key={s.id} value={s.id}>{s.title}</option>
+            {sections.map((s, i) => (
+              <option key={s.id} value={s.id}>{i + 1}. {s.title}</option>
             ))}
           </select>
         </div>
 
         {/* Content */}
-        <main className="min-w-0 flex-1 space-y-16 text-foreground/90">
+        <main className="docs-content min-w-0 max-w-full flex-1 space-y-12 break-words text-sm text-foreground/90 md:space-y-16 md:text-base">
           <div>
-            <h1 className="font-display text-3xl font-bold md:text-4xl">Documentation</h1>
-            <p className="mt-2 text-muted-foreground">Everything you need to master paper trading on NISHIRA.TRADE.</p>
+            <h1 className="font-display text-2xl font-bold md:text-4xl">Documentation</h1>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Everything you need to master paper trading on NISHIRA.TRADE.</p>
           </div>
 
           <section id="getting-started" className="scroll-mt-24">
-            <h2 className="font-display text-2xl font-bold">1. Getting Started</h2>
+            <h2 className="font-display text-xl md:text-2xl font-bold">1. Getting Started</h2>
             <ul className="mt-4 list-disc space-y-2 pl-6 text-sm">
               <li>Sign up with <b>Google</b> or <b>email + password</b>.</li>
               <li>You instantly receive <Code>₹10,00,000</Code> and <Code>$10,000</Code> in virtual balance.</li>
@@ -150,7 +150,7 @@ function DocsPage() {
           </section>
 
           <section id="virtual-balance" className="scroll-mt-24">
-            <h2 className="font-display text-2xl font-bold">2. Virtual Balance</h2>
+            <h2 className="font-display text-xl md:text-2xl font-bold">2. Virtual Balance</h2>
             <ul className="mt-4 list-disc space-y-2 pl-6 text-sm">
               <li><b>INR balance</b> — used for Indian stocks (NSE / BSE).</li>
               <li><b>USD balance</b> — used for US stocks (NASDAQ / NYSE).</li>
@@ -161,7 +161,7 @@ function DocsPage() {
           </section>
 
           <section id="how-to-trade" className="scroll-mt-24">
-            <h2 className="font-display text-2xl font-bold">3. How to Trade</h2>
+            <h2 className="font-display text-xl md:text-2xl font-bold">3. How to Trade</h2>
             <ol className="mt-4 list-decimal space-y-2 pl-6 text-sm">
               <li>Go to <b>Markets</b> → search or browse stocks.</li>
               <li>Click any stock → opens the <b>Trade</b> page.</li>
@@ -176,7 +176,7 @@ function DocsPage() {
           </section>
 
           <section id="tradingview" className="scroll-mt-24">
-            <h2 className="font-display text-2xl font-bold">4. TradingView Charts Guide</h2>
+            <h2 className="font-display text-xl md:text-2xl font-bold">4. TradingView Charts Guide</h2>
             <p className="mt-3 text-sm text-muted-foreground">
               Every trade page embeds the official TradingView Advanced Chart. Here's how to work it.
             </p>
@@ -190,7 +190,7 @@ function DocsPage() {
           </section>
 
           <section id="chart-tools" className="scroll-mt-24">
-            <h2 className="font-display text-2xl font-bold">5. Chart Tools Reference</h2>
+            <h2 className="font-display text-xl md:text-2xl font-bold">5. Chart Tools Reference</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {[
                 { icon: Crosshair, name: "Crosshair", desc: "Precise price/time cursor for reading any candle." },
@@ -214,7 +214,7 @@ function DocsPage() {
           </section>
 
           <section id="indicators" className="scroll-mt-24">
-            <h2 className="font-display text-2xl font-bold">6. Indicators Guide</h2>
+            <h2 className="font-display text-xl md:text-2xl font-bold">6. Indicators Guide</h2>
             <div className="mt-4 overflow-x-auto">
               <table className="w-full min-w-[640px] text-sm">
                 <thead className="text-left text-xs uppercase text-muted-foreground">
@@ -247,7 +247,7 @@ function DocsPage() {
           </section>
 
           <section id="candlesticks" className="scroll-mt-24">
-            <h2 className="font-display text-2xl font-bold">7. Reading Candlesticks</h2>
+            <h2 className="font-display text-xl md:text-2xl font-bold">7. Reading Candlesticks</h2>
             <p className="mt-3 text-sm">
               Each candle shows four prices: <b>Open</b>, <b>High</b>, <b>Low</b>, <b>Close</b>.
               A <span className="text-success font-semibold">green</span> candle closed higher than it opened;
@@ -260,7 +260,7 @@ function DocsPage() {
           </section>
 
           <section id="faqs" className="scroll-mt-24 pb-24">
-            <h2 className="font-display text-2xl font-bold">8. FAQs</h2>
+            <h2 className="font-display text-xl md:text-2xl font-bold">8. FAQs</h2>
             <div className="mt-4 space-y-4 text-sm">
               {[
                 { q: "Is this real money?", a: "No — 100% virtual. Nothing on NISHIRA.TRADE touches real cash." },
