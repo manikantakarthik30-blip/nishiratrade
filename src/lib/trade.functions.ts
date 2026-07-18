@@ -81,3 +81,25 @@ export const placeOrder = createServerFn({ method: "POST" })
 
     return { ok: true as const };
   });
+
+const resetSchema = z.object({
+  scope: z.enum(["INR", "USD", "BOTH"]),
+  wipeHoldings: z.boolean().optional(),
+});
+
+export const resetBalance = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) => resetSchema.parse(raw))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const patch: Record<string, number> = {};
+    if (data.scope === "INR" || data.scope === "BOTH") patch.balance_inr = 1_000_000;
+    if (data.scope === "USD" || data.scope === "BOTH") patch.balance_usd = 10_000;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await supabase.from("profiles").update(patch as any).eq("id", userId);
+    if (data.wipeHoldings) {
+      await supabase.from("holdings").delete().eq("user_id", userId);
+      await supabase.from("trades").delete().eq("user_id", userId);
+    }
+    return { ok: true as const };
+  });

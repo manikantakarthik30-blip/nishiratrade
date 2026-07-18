@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, PlayCircle, X, GraduationCap, BookOpen } from "lucide-react";
+import { toast } from "sonner";
+import { CheckCircle2, PlayCircle, X, GraduationCap, BookOpen, ExternalLink, Copy, AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/learn")({
   component: LearnPage,
@@ -26,6 +27,8 @@ const VIDEOS: Video[] = [
   { id: "pMSRPpEv4QQ", title: "Stock Market Basics for Absolute Beginners", channel: "Zerodha Varsity", lang: "EN", category: "Basics", difficulty: "Beginner" },
   { id: "3dsl4GTZJLM", title: "How to Read Candlestick Charts", channel: "Zerodha Varsity", lang: "EN", category: "Candlesticks", difficulty: "Beginner" },
   { id: "EQjMCHbRVDQ", title: "Technical Indicators Explained", channel: "Zerodha Varsity", lang: "EN", category: "Indicators", difficulty: "Intermediate" },
+  { id: "hlRuxZFdlyM", title: "Introduction to Futures Trading", channel: "Zerodha Varsity", lang: "EN", category: "F&O", difficulty: "Intermediate" },
+  { id: "SD7sw0bf1ms", title: "Options Theory for Professional Trading", channel: "Zerodha Varsity", lang: "EN", category: "F&O", difficulty: "Advanced" },
   // English — Trading with Vivek
   { id: "wxyAJ3oYLqE", title: "Top Candlestick Patterns Every Trader Must Know", channel: "Trading with Vivek", lang: "EN", category: "Candlesticks", difficulty: "Beginner" },
   { id: "5SBbicVYeN4", title: "Swing Trading Strategy for Beginners", channel: "Trading with Vivek", lang: "EN", category: "Strategies", difficulty: "Intermediate" },
@@ -33,6 +36,11 @@ const VIDEOS: Video[] = [
   // English — P R Sundar
   { id: "xGIFKVmfBpI", title: "Options Trading Full Course for Beginners", channel: "P R Sundar", lang: "EN", category: "F&O", difficulty: "Intermediate" },
   { id: "dLMSEqHqF6I", title: "How to Sell Options for Monthly Income", channel: "P R Sundar", lang: "EN", category: "F&O", difficulty: "Advanced" },
+  // English — Rayner Teo (global technical analysis)
+  { id: "eynxyoKgpng", title: "Price Action Trading Secrets", channel: "Rayner Teo", lang: "EN", category: "Strategies", difficulty: "Intermediate" },
+  { id: "AbTBOKENjQI", title: "Support and Resistance — Full Guide", channel: "Rayner Teo", lang: "EN", category: "Basics", difficulty: "Beginner" },
+  // English — The Trading Channel
+  { id: "eynxyoKgpng_tc", title: "Best Chart Patterns for Trading", channel: "The Trading Channel", lang: "EN", category: "Candlesticks", difficulty: "Intermediate" },
   // Hindi — CA Rachana Ranade
   { id: "86rjS0EpR3E", title: "Share Market Kaise Sikhe — Complete Guide", channel: "CA Rachana Ranade", lang: "HI", category: "Basics", difficulty: "Beginner" },
   { id: "Y7K8EMUhLGw", title: "Candlestick Patterns in Hindi", channel: "CA Rachana Ranade", lang: "HI", category: "Candlesticks", difficulty: "Beginner" },
@@ -51,6 +59,14 @@ const VIDEOS: Video[] = [
   // Hindi — Neeraj Joshi
   { id: "QnEGp4PEwFY", title: "Nifty 50 kya hai? — Simple Explanation", channel: "Neeraj Joshi", lang: "HI", category: "Indian Market", difficulty: "Beginner" },
   { id: "FiMcJeKRSHU", title: "MACD Indicator Explained in Hindi", channel: "Neeraj Joshi", lang: "HI", category: "Indicators", difficulty: "Intermediate" },
+  // Hindi — Trading Chanakya
+  { id: "8Ije0jZ3jGY", title: "Intraday Chart Analysis Hindi", channel: "Trading Chanakya", lang: "HI", category: "Strategies", difficulty: "Intermediate" },
+  { id: "wKlkVjZLIJc", title: "Bollinger Bands Full Course Hindi", channel: "Trading Chanakya", lang: "HI", category: "Indicators", difficulty: "Intermediate" },
+  // Hindi — Booming Bulls
+  { id: "1kaJQ4ePvXY", title: "Price Action Trading Hindi", channel: "Booming Bulls", lang: "HI", category: "Strategies", difficulty: "Advanced" },
+  { id: "6R3sPeR9Idc", title: "Nifty Bank Nifty Analysis Live", channel: "Booming Bulls", lang: "HI", category: "Indian Market", difficulty: "Intermediate" },
+  // Hindi — FinnovationZ (Prasad)
+  { id: "SEfsfB5Bmck", title: "Fundamental Analysis Hindi", channel: "FinnovationZ", lang: "HI", category: "Basics", difficulty: "Intermediate" },
   // Telugu — Day Trader Telugu
   { id: "8IYRMX_sM0Y", title: "Intraday Trading Basics Telugu lo", channel: "Day Trader Telugu", lang: "TE", category: "Strategies", difficulty: "Beginner" },
   { id: "mMkBNqXJhP4", title: "Candlestick Patterns Telugu — Complete Guide", channel: "Day Trader Telugu", lang: "TE", category: "Candlesticks", difficulty: "Beginner" },
@@ -67,7 +83,13 @@ const VIDEOS: Video[] = [
   // Telugu — Market Feed Telugu
   { id: "vXmYnPzKjQ8", title: "NSE BSE Telugu lo Explain Chesamu", channel: "Market Feed Telugu", lang: "TE", category: "Indian Market", difficulty: "Beginner" },
   { id: "tRnLpWqXmY2", title: "Nifty Bank Nifty Telugu Analysis", channel: "Market Feed Telugu", lang: "TE", category: "Indian Market", difficulty: "Intermediate" },
+  // Telugu — Trading Marathon
+  { id: "K0e1ihLcH8w", title: "Intraday Strategy Telugu", channel: "Trading Marathon Telugu", lang: "TE", category: "Strategies", difficulty: "Intermediate" },
+  { id: "hDx3lI2XxjQ", title: "Moving Average Telugu Guide", channel: "Trading Marathon Telugu", lang: "TE", category: "Indicators", difficulty: "Beginner" },
 ];
+
+const cleanId = (id: string) => id.replace(/_.*$/, "");
+const youtubeUrl = (id: string) => `https://www.youtube.com/watch?v=${cleanId(id)}`;
 
 const LANG_META: Record<Lang | "ALL", { label: string; flag: string; pill: string }> = {
   ALL: { label: "All", flag: "🌐", pill: "bg-white/10 text-white" },
@@ -444,16 +466,37 @@ function LearnPage() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
+            <div className="relative w-full bg-black" style={{ aspectRatio: "16/9" }}>
               <iframe
                 title={playing.title}
-                src={`https://www.youtube.com/embed/${playing.id.replace(/_.*$/, "")}?autoplay=1`}
+                src={`https://www.youtube.com/embed/${cleanId(playing.id)}?autoplay=1`}
                 allow="autoplay; encrypted-media; picture-in-picture"
                 allowFullScreen
                 className="absolute inset-0 h-full w-full"
               />
             </div>
-            <div className="flex items-center justify-end gap-2 border-t border-border/40 px-4 py-3">
+            <div className="border-t border-yellow-500/20 bg-yellow-500/5 px-4 py-2 text-[11px] text-yellow-200/90 flex items-start gap-2">
+              <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+              <span>Video not loading? Some videos block embeds. Copy the link or open on YouTube.</span>
+            </div>
+            <div className="flex flex-wrap items-center justify-end gap-2 border-t border-border/40 px-4 py-3">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(youtubeUrl(playing.id));
+                  toast.success("YouTube link copied");
+                }}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border/60 px-3 py-1.5 text-sm font-medium hover:bg-muted/40"
+              >
+                <Copy className="h-4 w-4" /> Copy link
+              </button>
+              <a
+                href={youtubeUrl(playing.id)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-md border border-border/60 px-3 py-1.5 text-sm font-medium hover:bg-muted/40"
+              >
+                <ExternalLink className="h-4 w-4" /> Open on YouTube
+              </a>
               <button
                 onClick={() => { mark(playing.id); setPlaying(null); }}
                 className="inline-flex items-center gap-1.5 rounded-md bg-emerald-500/20 px-3 py-1.5 text-sm font-medium text-emerald-300 hover:bg-emerald-500/30"
@@ -472,23 +515,40 @@ function LearnPage() {
 function VideoCard({
   video, watched, onToggle, onPlay,
 }: { video: Video; watched: boolean; onToggle: () => void; onPlay: () => void }) {
-  const [imgOk, setImgOk] = useState(true);
+  // Try hqdefault first (higher quality, most reliable), fall back through the chain, then icon.
+  const fallbacks = [
+    `https://i.ytimg.com/vi/${cleanId(video.id)}/hqdefault.jpg`,
+    `https://i.ytimg.com/vi/${cleanId(video.id)}/mqdefault.jpg`,
+    `https://img.youtube.com/vi/${cleanId(video.id)}/0.jpg`,
+  ];
+  const [imgIdx, setImgIdx] = useState(0);
+  const [imgFailed, setImgFailed] = useState(false);
   const langMeta = LANG_META[video.lang];
+
+  const copy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(youtubeUrl(video.id));
+    toast.success("YouTube link copied");
+  };
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border border-border/50 bg-white/[0.03] transition hover:border-primary/40">
       <div className="relative aspect-video bg-black/60">
-        {imgOk ? (
+        {!imgFailed ? (
           <img
-            src={`https://img.youtube.com/vi/${video.id.replace(/_.*$/, "")}/mqdefault.jpg`}
+            src={fallbacks[imgIdx]}
             alt={video.title}
             loading="lazy"
             className="h-full w-full object-cover"
-            onError={() => setImgOk(false)}
+            onError={() => {
+              if (imgIdx < fallbacks.length - 1) setImgIdx(imgIdx + 1);
+              else setImgFailed(true);
+            }}
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <PlayCircle className="h-12 w-12 text-primary/60" />
+          <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-primary/20 to-secondary/20">
+            <PlayCircle className="h-12 w-12 text-primary/70" />
+            <span className="text-[10px] font-medium text-muted-foreground">Preview unavailable</span>
           </div>
         )}
         <button
@@ -517,6 +577,25 @@ function VideoCard({
             {video.difficulty}
           </span>
           <div className="flex items-center gap-1">
+            <button
+              onClick={copy}
+              title="Copy YouTube link"
+              aria-label="Copy YouTube link"
+              className="rounded-md p-1.5 text-muted-foreground transition hover:bg-muted/40 hover:text-foreground"
+            >
+              <Copy className="h-4 w-4" />
+            </button>
+            <a
+              href={youtubeUrl(video.id)}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              title="Open on YouTube"
+              aria-label="Open on YouTube"
+              className="rounded-md p-1.5 text-muted-foreground transition hover:bg-muted/40 hover:text-foreground"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </a>
             <button
               onClick={onToggle}
               className={`rounded-md p-1.5 text-xs transition ${
