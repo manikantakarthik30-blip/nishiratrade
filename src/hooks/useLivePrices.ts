@@ -73,10 +73,24 @@ export function useLivePrice(ticker: string) {
     };
   }, [ticker, stock, finnhubKey]);
 
-  const price = wsPrice ?? initial;
+  // Indian stocks: poll AngelOne LTP every 3s via server fn.
+  const fetchLTP = useServerFn(getIndianLTP);
+  const { data: indianData } = useQuery({
+    queryKey: ["indianLTP", ticker],
+    queryFn: () => fetchLTP({ data: { tickers: [ticker] } }),
+    enabled: !!stock && stock.market === "IN",
+    refetchInterval: 3000,
+    staleTime: 2500,
+  });
+  const inPrice = indianData?.[ticker];
+
+  const price = wsPrice ?? inPrice ?? initial;
+  const isLive = wsPrice !== null || typeof inPrice === "number";
   const pct = wsPrice
     ? ((wsPrice - openPriceRef.current) / openPriceRef.current) * 100
-    : livePctChange(ticker);
+    : typeof inPrice === "number" && stock
+      ? ((inPrice - stock.basePrice) / stock.basePrice) * 100
+      : livePctChange(ticker);
 
-  return { price, pct, isLive: wsPrice !== null };
+  return { price, pct, isLive };
 }
