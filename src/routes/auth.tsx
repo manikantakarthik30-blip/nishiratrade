@@ -80,7 +80,15 @@ function AuthPage() {
           email: identifier.trim(),
           password,
         });
-        if (error) throw error;
+        if (error) {
+          const msg = error.message.toLowerCase();
+          if (msg.includes("confirm") || msg.includes("not confirmed") || msg.includes("verify")) {
+            setPendingEmail(identifier.trim());
+            toast.error("Please verify your email first. We can resend the link.");
+            return;
+          }
+          throw error;
+        }
       } else {
         const tokens = await doMobileLogin({
           data: { mobile: identifier.trim(), password },
@@ -88,7 +96,6 @@ function AuthPage() {
         const { error } = await supabase.auth.setSession(tokens);
         if (error) throw error;
       }
-      // Note: 'remember' currently maps to Supabase's persistent session (default). Turning it off signs the user out on tab close.
       if (!remember) {
         window.addEventListener(
           "beforeunload",
@@ -134,7 +141,8 @@ function AuthPage() {
         toast.success("Account created. Launching…");
         navigate({ to: "/dashboard" });
       } else {
-        toast.success("Check your email to verify your account.");
+        setPendingEmail(signupEmail.trim());
+        toast.success("Verification email sent. Check your inbox.");
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Signup failed");
@@ -142,6 +150,31 @@ function AuthPage() {
       setLoading(false);
     }
   };
+
+  const onResendVerification = async () => {
+    if (!pendingEmail || resendCooldown > 0) return;
+    setLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: pendingEmail,
+      options: { emailRedirectTo: window.location.origin + "/dashboard" },
+    });
+    setLoading(false);
+    if (error) return toast.error(error.message);
+    toast.success("Verification email resent.");
+    setResendCooldown(45);
+    const iv = setInterval(() => {
+      setResendCooldown((s) => {
+        if (s <= 1) {
+          clearInterval(iv);
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
+  };
+
+
 
   const onGoogle = async () => {
     setLoading(true);
