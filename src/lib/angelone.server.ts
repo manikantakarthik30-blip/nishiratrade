@@ -59,7 +59,7 @@ async function totp(secretBase32: string, step = 30, digits = 6): Promise<string
   view.setUint32(4, counter >>> 0);
   const cryptoKey = await crypto.subtle.importKey(
     "raw",
-    key,
+    key.buffer as ArrayBuffer,
     { name: "HMAC", hash: "SHA-1" },
     false,
     ["sign"],
