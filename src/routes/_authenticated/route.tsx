@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect, Link, useRouter, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, TrendingUp, Wallet, Trophy, Rocket, LogOut,
-  CandlestickChart, GraduationCap, User, Settings, BookOpen,
+  CandlestickChart, GraduationCap, User, Settings, BookOpen, Shield,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Starfield } from "@/components/Starfield";
@@ -128,7 +128,10 @@ function AuthedLayout() {
                 <span className="text-success">{formatMoney(inrBalance, "INR")}</span>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/portfolio"><User className="mr-2 h-4 w-4" /> Profile</Link>
+                <Link to="/profile"><User className="mr-2 h-4 w-4" /> Profile</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/security"><Shield className="mr-2 h-4 w-4" /> Security</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/settings"><Settings className="mr-2 h-4 w-4" /> Settings</Link>

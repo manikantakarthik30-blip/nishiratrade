@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -252,8 +252,6 @@ function SecurityPage() {
   );
 }
 
-// Placeholder for typed row access (kept so ESLint recognizes usage above).
-useEffect;
 
 function Section({
   icon, title, tone, children,
