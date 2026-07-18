@@ -519,18 +519,72 @@ function LearnPage() {
               </button>
             </div>
             <div className="relative w-full bg-black" style={{ aspectRatio: "16/9" }}>
-              <iframe
-                title={playing.title}
-                src={`https://www.youtube.com/embed/${cleanId(playing.id)}?autoplay=1`}
-                allow="autoplay; encrypted-media; picture-in-picture"
-                allowFullScreen
-                className="absolute inset-0 h-full w-full"
-              />
+              {!embedError ? (
+                <iframe
+                  key={iframeKey}
+                  title={playing.title}
+                  src={`https://www.youtube.com/embed/${cleanId(playing.id)}?autoplay=1&enablejsapi=1&origin=${encodeURIComponent(typeof window !== "undefined" ? window.location.origin : "")}`}
+                  allow="autoplay; encrypted-media; picture-in-picture"
+                  allowFullScreen
+                  className="absolute inset-0 h-full w-full"
+                  onLoad={(e) => {
+                    // Handshake so the YT player sends us event messages
+                    try {
+                      (e.currentTarget as HTMLIFrameElement).contentWindow?.postMessage(
+                        JSON.stringify({ event: "listening", id: playing.id }),
+                        "*"
+                      );
+                    } catch {
+                      /* ignore */
+                    }
+                  }}
+                />
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center">
+                  <div className="grid h-14 w-14 place-items-center rounded-full bg-red-500/15 text-red-400">
+                    <AlertTriangle className="h-7 w-7" />
+                  </div>
+                  <div className="max-w-md">
+                    <div className="text-base font-semibold text-white">This video can't be played here</div>
+                    <div className="mt-1 text-sm text-white/70">{embedError.message}</div>
+                    {embedError.code ? (
+                      <div className="mt-1 text-[11px] text-white/40">Error code: {embedError.code}</div>
+                    ) : null}
+                  </div>
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    <button
+                      onClick={() => { setEmbedError(null); setEmbedReady(false); setIframeKey((k) => k + 1); }}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-background/40 px-3 py-1.5 text-sm font-medium text-white hover:bg-background/70"
+                    >
+                      <RefreshCw className="h-4 w-4" /> Retry
+                    </button>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(youtubeUrl(playing.id));
+                        toast.success("YouTube link copied");
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-border/60 bg-background/40 px-3 py-1.5 text-sm font-medium text-white hover:bg-background/70"
+                    >
+                      <Copy className="h-4 w-4" /> Copy link
+                    </button>
+                    <a
+                      href={youtubeUrl(playing.id)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-md bg-red-500/90 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-500"
+                    >
+                      <ExternalLink className="h-4 w-4" /> Open on YouTube
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="border-t border-yellow-500/20 bg-yellow-500/5 px-4 py-2 text-[11px] text-yellow-200/90 flex items-start gap-2">
-              <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-              <span>Video not loading? Some videos block embeds. Copy the link or open on YouTube.</span>
-            </div>
+            {!embedError && (
+              <div className="border-t border-yellow-500/20 bg-yellow-500/5 px-4 py-2 text-[11px] text-yellow-200/90 flex items-start gap-2">
+                <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                <span>Video not loading? Some videos block embeds. Copy the link or open on YouTube.</span>
+              </div>
+            )}
             <div className="flex flex-wrap items-center justify-end gap-2 border-t border-border/40 px-4 py-3">
               <button
                 onClick={() => {
