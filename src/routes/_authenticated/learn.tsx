@@ -27,6 +27,8 @@ const VIDEOS: Video[] = [
   { id: "pMSRPpEv4QQ", title: "Stock Market Basics for Absolute Beginners", channel: "Zerodha Varsity", lang: "EN", category: "Basics", difficulty: "Beginner" },
   { id: "3dsl4GTZJLM", title: "How to Read Candlestick Charts", channel: "Zerodha Varsity", lang: "EN", category: "Candlesticks", difficulty: "Beginner" },
   { id: "EQjMCHbRVDQ", title: "Technical Indicators Explained", channel: "Zerodha Varsity", lang: "EN", category: "Indicators", difficulty: "Intermediate" },
+  { id: "hlRuxZFdlyM", title: "Introduction to Futures Trading", channel: "Zerodha Varsity", lang: "EN", category: "F&O", difficulty: "Intermediate" },
+  { id: "SD7sw0bf1ms", title: "Options Theory for Professional Trading", channel: "Zerodha Varsity", lang: "EN", category: "F&O", difficulty: "Advanced" },
   // English — Trading with Vivek
   { id: "wxyAJ3oYLqE", title: "Top Candlestick Patterns Every Trader Must Know", channel: "Trading with Vivek", lang: "EN", category: "Candlesticks", difficulty: "Beginner" },
   { id: "5SBbicVYeN4", title: "Swing Trading Strategy for Beginners", channel: "Trading with Vivek", lang: "EN", category: "Strategies", difficulty: "Intermediate" },
@@ -34,6 +36,11 @@ const VIDEOS: Video[] = [
   // English — P R Sundar
   { id: "xGIFKVmfBpI", title: "Options Trading Full Course for Beginners", channel: "P R Sundar", lang: "EN", category: "F&O", difficulty: "Intermediate" },
   { id: "dLMSEqHqF6I", title: "How to Sell Options for Monthly Income", channel: "P R Sundar", lang: "EN", category: "F&O", difficulty: "Advanced" },
+  // English — Rayner Teo (global technical analysis)
+  { id: "eynxyoKgpng", title: "Price Action Trading Secrets", channel: "Rayner Teo", lang: "EN", category: "Strategies", difficulty: "Intermediate" },
+  { id: "AbTBOKENjQI", title: "Support and Resistance — Full Guide", channel: "Rayner Teo", lang: "EN", category: "Basics", difficulty: "Beginner" },
+  // English — The Trading Channel
+  { id: "eynxyoKgpng_tc", title: "Best Chart Patterns for Trading", channel: "The Trading Channel", lang: "EN", category: "Candlesticks", difficulty: "Intermediate" },
   // Hindi — CA Rachana Ranade
   { id: "86rjS0EpR3E", title: "Share Market Kaise Sikhe — Complete Guide", channel: "CA Rachana Ranade", lang: "HI", category: "Basics", difficulty: "Beginner" },
   { id: "Y7K8EMUhLGw", title: "Candlestick Patterns in Hindi", channel: "CA Rachana Ranade", lang: "HI", category: "Candlesticks", difficulty: "Beginner" },
@@ -52,6 +59,14 @@ const VIDEOS: Video[] = [
   // Hindi — Neeraj Joshi
   { id: "QnEGp4PEwFY", title: "Nifty 50 kya hai? — Simple Explanation", channel: "Neeraj Joshi", lang: "HI", category: "Indian Market", difficulty: "Beginner" },
   { id: "FiMcJeKRSHU", title: "MACD Indicator Explained in Hindi", channel: "Neeraj Joshi", lang: "HI", category: "Indicators", difficulty: "Intermediate" },
+  // Hindi — Trading Chanakya
+  { id: "8Ije0jZ3jGY", title: "Intraday Chart Analysis Hindi", channel: "Trading Chanakya", lang: "HI", category: "Strategies", difficulty: "Intermediate" },
+  { id: "wKlkVjZLIJc", title: "Bollinger Bands Full Course Hindi", channel: "Trading Chanakya", lang: "HI", category: "Indicators", difficulty: "Intermediate" },
+  // Hindi — Booming Bulls
+  { id: "1kaJQ4ePvXY", title: "Price Action Trading Hindi", channel: "Booming Bulls", lang: "HI", category: "Strategies", difficulty: "Advanced" },
+  { id: "6R3sPeR9Idc", title: "Nifty Bank Nifty Analysis Live", channel: "Booming Bulls", lang: "HI", category: "Indian Market", difficulty: "Intermediate" },
+  // Hindi — FinnovationZ (Prasad)
+  { id: "SEfsfB5Bmck", title: "Fundamental Analysis Hindi", channel: "FinnovationZ", lang: "HI", category: "Basics", difficulty: "Intermediate" },
   // Telugu — Day Trader Telugu
   { id: "8IYRMX_sM0Y", title: "Intraday Trading Basics Telugu lo", channel: "Day Trader Telugu", lang: "TE", category: "Strategies", difficulty: "Beginner" },
   { id: "mMkBNqXJhP4", title: "Candlestick Patterns Telugu — Complete Guide", channel: "Day Trader Telugu", lang: "TE", category: "Candlesticks", difficulty: "Beginner" },
@@ -68,7 +83,13 @@ const VIDEOS: Video[] = [
   // Telugu — Market Feed Telugu
   { id: "vXmYnPzKjQ8", title: "NSE BSE Telugu lo Explain Chesamu", channel: "Market Feed Telugu", lang: "TE", category: "Indian Market", difficulty: "Beginner" },
   { id: "tRnLpWqXmY2", title: "Nifty Bank Nifty Telugu Analysis", channel: "Market Feed Telugu", lang: "TE", category: "Indian Market", difficulty: "Intermediate" },
+  // Telugu — Trading Marathon
+  { id: "K0e1ihLcH8w", title: "Intraday Strategy Telugu", channel: "Trading Marathon Telugu", lang: "TE", category: "Strategies", difficulty: "Intermediate" },
+  { id: "hDx3lI2XxjQ", title: "Moving Average Telugu Guide", channel: "Trading Marathon Telugu", lang: "TE", category: "Indicators", difficulty: "Beginner" },
 ];
+
+const cleanId = (id: string) => id.replace(/_.*$/, "");
+const youtubeUrl = (id: string) => `https://www.youtube.com/watch?v=${cleanId(id)}`;
 
 const LANG_META: Record<Lang | "ALL", { label: string; flag: string; pill: string }> = {
   ALL: { label: "All", flag: "🌐", pill: "bg-white/10 text-white" },
