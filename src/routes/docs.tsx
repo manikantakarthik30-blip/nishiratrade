@@ -140,7 +140,7 @@ function DocsPage() {
           </div>
 
           <section id="getting-started" className="scroll-mt-24">
-            <h2 className="font-display text-2xl font-bold">1. Getting Started</h2>
+            <h2 className="font-display text-xl md:text-2xl font-bold">1. Getting Started</h2>
             <ul className="mt-4 list-disc space-y-2 pl-6 text-sm">
               <li>Sign up with <b>Google</b> or <b>email + password</b>.</li>
               <li>You instantly receive <Code>₹10,00,000</Code> and <Code>$10,000</Code> in virtual balance.</li>
@@ -150,7 +150,7 @@ function DocsPage() {
           </section>
 
           <section id="virtual-balance" className="scroll-mt-24">
-            <h2 className="font-display text-2xl font-bold">2. Virtual Balance</h2>
+            <h2 className="font-display text-xl md:text-2xl font-bold">2. Virtual Balance</h2>
             <ul className="mt-4 list-disc space-y-2 pl-6 text-sm">
               <li><b>INR balance</b> — used for Indian stocks (NSE / BSE).</li>
               <li><b>USD balance</b> — used for US stocks (NASDAQ / NYSE).</li>
@@ -161,7 +161,7 @@ function DocsPage() {
           </section>
 
           <section id="how-to-trade" className="scroll-mt-24">
-            <h2 className="font-display text-2xl font-bold">3. How to Trade</h2>
+            <h2 className="font-display text-xl md:text-2xl font-bold">3. How to Trade</h2>
             <ol className="mt-4 list-decimal space-y-2 pl-6 text-sm">
               <li>Go to <b>Markets</b> → search or browse stocks.</li>
               <li>Click any stock → opens the <b>Trade</b> page.</li>
@@ -176,7 +176,7 @@ function DocsPage() {
           </section>
 
           <section id="tradingview" className="scroll-mt-24">
-            <h2 className="font-display text-2xl font-bold">4. TradingView Charts Guide</h2>
+            <h2 className="font-display text-xl md:text-2xl font-bold">4. TradingView Charts Guide</h2>
             <p className="mt-3 text-sm text-muted-foreground">
               Every trade page embeds the official TradingView Advanced Chart. Here's how to work it.
             </p>
@@ -190,7 +190,7 @@ function DocsPage() {
           </section>
 
           <section id="chart-tools" className="scroll-mt-24">
-            <h2 className="font-display text-2xl font-bold">5. Chart Tools Reference</h2>
+            <h2 className="font-display text-xl md:text-2xl font-bold">5. Chart Tools Reference</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {[
                 { icon: Crosshair, name: "Crosshair", desc: "Precise price/time cursor for reading any candle." },
@@ -214,7 +214,7 @@ function DocsPage() {
           </section>
 
           <section id="indicators" className="scroll-mt-24">
-            <h2 className="font-display text-2xl font-bold">6. Indicators Guide</h2>
+            <h2 className="font-display text-xl md:text-2xl font-bold">6. Indicators Guide</h2>
             <div className="mt-4 overflow-x-auto">
               <table className="w-full min-w-[640px] text-sm">
                 <thead className="text-left text-xs uppercase text-muted-foreground">
@@ -247,7 +247,7 @@ function DocsPage() {
           </section>
 
           <section id="candlesticks" className="scroll-mt-24">
-            <h2 className="font-display text-2xl font-bold">7. Reading Candlesticks</h2>
+            <h2 className="font-display text-xl md:text-2xl font-bold">7. Reading Candlesticks</h2>
             <p className="mt-3 text-sm">
               Each candle shows four prices: <b>Open</b>, <b>High</b>, <b>Low</b>, <b>Close</b>.
               A <span className="text-success font-semibold">green</span> candle closed higher than it opened;
@@ -260,7 +260,7 @@ function DocsPage() {
           </section>
 
           <section id="faqs" className="scroll-mt-24 pb-24">
-            <h2 className="font-display text-2xl font-bold">8. FAQs</h2>
+            <h2 className="font-display text-xl md:text-2xl font-bold">8. FAQs</h2>
             <div className="mt-4 space-y-4 text-sm">
               {[
                 { q: "Is this real money?", a: "No — 100% virtual. Nothing on NISHIRA.TRADE touches real cash." },
