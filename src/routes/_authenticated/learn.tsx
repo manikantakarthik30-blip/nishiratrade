@@ -322,7 +322,9 @@ function LearnPage() {
 
     const onMessage = (ev: MessageEvent) => {
       if (typeof ev.data !== "string") return;
-      if (!/youtube\.com$/i.test(new URL(ev.origin).hostname.replace(/^www\./, ""))) return;
+      let host = "";
+      try { host = new URL(ev.origin).hostname.replace(/^www\./, ""); } catch { return; }
+      if (!/youtube\.com$|youtube-nocookie\.com$/i.test(host)) return;
       try {
         const data = JSON.parse(ev.data);
         if (data?.event === "onReady" || data?.event === "infoDelivery") {
