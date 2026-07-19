@@ -81,18 +81,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Practice Indian and US stock trading with a ₹10L + $10k virtual balance, real TradingView charts and an AI tutor. Risk nothing. Learn everything.",
       },
-      { property: "og:title", content: "NISHIRA.TRADE — Paper Trading Playground" },
+      { property: "og:title", content: "NISHIRA.TRADE — Paper Trading, Zero Risk" },
       {
         property: "og:description",
-        content: "Practice the market. Risk nothing. Learn everything.",
+        content: "Practice Indian and US stock trading with a ₹10L + $10k virtual balance, real TradingView charts and an AI tutor. Risk nothing. Learn everything.",
       },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "NISHIRA.TRADE" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "NISHIRA.TRADE — Paper Trading, Zero Risk" },
+      { name: "twitter:description", content: "Practice Indian and US stock trading with a ₹10L + $10k virtual balance, real TradingView charts and an AI tutor. Risk nothing. Learn everything." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/2ff17c3b-cb01-4d6b-b491-b56759f61414" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/2ff17c3b-cb01-4d6b-b491-b56759f61414" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
