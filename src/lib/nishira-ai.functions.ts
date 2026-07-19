@@ -32,8 +32,40 @@ const InputSchema = z.object({
 export const askNishiraAI = createServerFn({ method: "POST" })
   .inputValidator((raw: unknown) => InputSchema.parse(raw))
   .handler(async ({ data }) => {
+    // Prefer user-supplied Gemini API key (direct Google API, unlimited by user's own quota).
+    // Fall back to Lovable AI gateway.
+    const geminiKey = process.env.GEMINI_API_KEY;
+    if (geminiKey) {
+      const contents = data.messages.map((m) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content }],
+      }));
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+            contents,
+            generationConfig: { temperature: 0.7, maxOutputTokens: 500 },
+          }),
+        },
+      );
+      if (res.status === 429) throw new Error("Rate limit reached. Try again in a moment.");
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`Gemini error (${res.status}): ${text.slice(0, 200)}`);
+      }
+      const json = (await res.json()) as {
+        candidates?: { content?: { parts?: { text?: string }[] } }[];
+      };
+      const reply = json.candidates?.[0]?.content?.parts?.map((p) => p.text).join("").trim();
+      return { reply: reply || "Sorry, I couldn't process that. Please try again." };
+    }
+
     const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("Missing LOVABLE_API_KEY");
+    if (!key) throw new Error("Missing GEMINI_API_KEY or LOVABLE_API_KEY");
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
