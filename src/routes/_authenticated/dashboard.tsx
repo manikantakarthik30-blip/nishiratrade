@@ -247,6 +247,8 @@ function Dashboard() {
           })}
         </div>
       </Card>
+
+      <QuickTradePanel ticker={quickTicker} defaultSide={quickSide} onClose={() => setQuickTicker(null)} />
     </div>
   );
 }
