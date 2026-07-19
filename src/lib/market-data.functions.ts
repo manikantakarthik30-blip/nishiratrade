@@ -1,11 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { fetchOHLCV } from "@/lib/chart-theme";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-/** Expose the Finnhub key to the browser for WebSocket streaming. */
-export const getFinnhubKey = createServerFn({ method: "GET" }).handler(async () => {
-  return process.env.FINNHUB_API_KEY ?? null;
-});
+/** Expose the Finnhub key only to authenticated users for WebSocket streaming. */
+export const getFinnhubKey = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    return process.env.FINNHUB_API_KEY ?? null;
+  });
 
 const ohlcvSchema = z.object({
   ticker: z.string().min(1).max(16),

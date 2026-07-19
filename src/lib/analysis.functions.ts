@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const InputSchema = z.object({
   symbol: z.string().min(1).max(16),
@@ -175,6 +176,7 @@ async function tryLovable(model: string, key: string, prompt: string): Promise<A
 }
 
 export const generateStockAnalysis = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) => InputSchema.parse(raw))
   .handler(async ({ data }): Promise<AnalysisReport> => {
     const prompt = buildPrompt(data);
