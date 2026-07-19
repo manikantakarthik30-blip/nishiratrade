@@ -17,8 +17,7 @@ export const Route = createFileRoute("/_authenticated/analysis")({
 
 // Master search list (per spec)
 type MasterEntry = { ticker: string; name: string; market: "IN" | "US" };
-const MASTER: MasterEntry[] = [
-  // Indian
+const IN_LIST: [string, string][] = [
   ["RELIANCE", "Reliance Industries"], ["TCS", "Tata Consultancy Services"],
   ["INFY", "Infosys"], ["HDFCBANK", "HDFC Bank"], ["WIPRO", "Wipro"],
   ["ICICIBANK", "ICICI Bank"], ["SBIN", "State Bank of India"],
@@ -30,16 +29,20 @@ const MASTER: MasterEntry[] = [
   ["ONGC", "Oil & Natural Gas Corp"], ["COALINDIA", "Coal India"],
   ["ADANIENT", "Adani Enterprises"], ["NIFTY", "Nifty 50 Index"],
   ["BANKNIFTY", "Bank Nifty Index"], ["SENSEX", "BSE Sensex"],
-].map(([t, n]) => ({ ticker: t, name: n, market: "IN" as const }))
-  .concat(([
-    ["AAPL", "Apple Inc."], ["TSLA", "Tesla"], ["NVDA", "NVIDIA"],
-    ["GOOGL", "Alphabet"], ["MSFT", "Microsoft"], ["AMZN", "Amazon"],
-    ["META", "Meta Platforms"], ["NFLX", "Netflix"], ["AMD", "Advanced Micro Devices"],
-    ["UBER", "Uber Technologies"], ["INTC", "Intel"], ["BABA", "Alibaba"],
-    ["JPM", "JPMorgan Chase"], ["V", "Visa"], ["MA", "Mastercard"],
-    ["DIS", "Walt Disney"], ["PLTR", "Palantir"], ["SOFI", "SoFi Technologies"],
-    ["RIVN", "Rivian"], ["COIN", "Coinbase"],
-  ] as const).map(([t, n]) => ({ ticker: t, name: n, market: "US" as const })));
+];
+const US_LIST: [string, string][] = [
+  ["AAPL", "Apple Inc."], ["TSLA", "Tesla"], ["NVDA", "NVIDIA"],
+  ["GOOGL", "Alphabet"], ["MSFT", "Microsoft"], ["AMZN", "Amazon"],
+  ["META", "Meta Platforms"], ["NFLX", "Netflix"], ["AMD", "Advanced Micro Devices"],
+  ["UBER", "Uber Technologies"], ["INTC", "Intel"], ["BABA", "Alibaba"],
+  ["JPM", "JPMorgan Chase"], ["V", "Visa"], ["MA", "Mastercard"],
+  ["DIS", "Walt Disney"], ["PLTR", "Palantir"], ["SOFI", "SoFi Technologies"],
+  ["RIVN", "Rivian"], ["COIN", "Coinbase"],
+];
+const MASTER: MasterEntry[] = [
+  ...IN_LIST.map(([t, n]): MasterEntry => ({ ticker: t, name: n, market: "IN" })),
+  ...US_LIST.map(([t, n]): MasterEntry => ({ ticker: t, name: n, market: "US" })),
+];
 
 const MASTER_BY_TICKER = Object.fromEntries(MASTER.map((m) => [m.ticker, m]));
 
