@@ -117,55 +117,107 @@ const extractJson = (text: string): AnalysisReport => {
   }
 };
 
+// Simple in-memory cache (per server instance) — keyed by symbol + rounded price bucket.
+// Cuts repeated API calls when users click Generate multiple times on the same stock.
+const CACHE = new Map<string, { at: number; report: AnalysisReport }>();
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function tryGemini(
+  model: string,
+  key: string,
+  prompt: string,
+): Promise<AnalysisReport> {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 4096,
+          responseMimeType: "application/json",
+        },
+      }),
+    },
+  );
+  if (res.status === 429 || res.status === 503) throw new Error(`RETRY_${res.status}`);
+  if (!res.ok) throw new Error(`Gemini ${model} (${res.status}): ${(await res.text()).slice(0, 160)}`);
+  const json = (await res.json()) as {
+    candidates?: { content?: { parts?: { text?: string }[] } }[];
+  };
+  const text = json.candidates?.[0]?.content?.parts?.map((p) => p.text).join("") ?? "";
+  return extractJson(text);
+}
+
+async function tryLovable(model: string, key: string, prompt: string): Promise<AnalysisReport> {
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      temperature: 0.3,
+      max_tokens: 4096,
+    }),
+  });
+  if (res.status === 429 || res.status === 503) throw new Error(`RETRY_${res.status}`);
+  if (res.status === 402)
+    throw new Error("AI credits exhausted. Please add credits in Settings → Plans & credits.");
+  if (!res.ok) throw new Error(`Lovable ${model} (${res.status}): ${(await res.text()).slice(0, 160)}`);
+  const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+  const text = json.choices?.[0]?.message?.content ?? "";
+  return extractJson(text);
+}
+
 export const generateStockAnalysis = createServerFn({ method: "POST" })
   .inputValidator((raw: unknown) => InputSchema.parse(raw))
   .handler(async ({ data }): Promise<AnalysisReport> => {
     const prompt = buildPrompt(data);
-    const geminiKey = process.env.GEMINI_API_KEY;
+    const cacheKey = `${data.market}:${data.symbol}:${Math.round(data.currentPrice)}`;
+    const cached = CACHE.get(cacheKey);
+    if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.report;
 
+    const geminiKey = process.env.GEMINI_API_KEY;
+    const lovableKey = process.env.LOVABLE_API_KEY;
+
+    // Provider chain — tries fastest+cheapest first, then wider fallbacks.
+    // Each provider gets 2 attempts with exponential backoff on 429/503.
+    type Provider = { name: string; run: () => Promise<AnalysisReport> };
+    const chain: Provider[] = [];
     if (geminiKey) {
-      try {
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ role: "user", parts: [{ text: prompt }] }],
-              generationConfig: { temperature: 0.3, maxOutputTokens: 4096, responseMimeType: "application/json" },
-            }),
-          },
-        );
-        if (res.status === 429) throw new Error("GEMINI_RATE_LIMIT");
-        if (!res.ok) throw new Error(`Gemini error (${res.status}): ${(await res.text()).slice(0, 200)}`);
-        const json = (await res.json()) as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
-        const text = json.candidates?.[0]?.content?.parts?.map((p) => p.text).join("") ?? "";
-        return extractJson(text);
-      } catch (err) {
-        // Fall through to Lovable AI gateway on rate limit or transient errors
-        if (!process.env.LOVABLE_API_KEY) throw err;
-        console.warn("Gemini failed, falling back to Lovable AI:", (err as Error).message);
+      chain.push({ name: "gemini-2.0-flash", run: () => tryGemini("gemini-2.0-flash", geminiKey, prompt) });
+      chain.push({ name: "gemini-1.5-flash", run: () => tryGemini("gemini-1.5-flash", geminiKey, prompt) });
+    }
+    if (lovableKey) {
+      chain.push({ name: "lovable:gemini-2.5-flash", run: () => tryLovable("google/gemini-2.5-flash", lovableKey, prompt) });
+      chain.push({ name: "lovable:gemini-2.5-flash-lite", run: () => tryLovable("google/gemini-2.5-flash-lite", lovableKey, prompt) });
+    }
+    if (chain.length === 0) throw new Error("Missing GEMINI_API_KEY or LOVABLE_API_KEY");
+
+    let lastErr: Error | null = null;
+    for (const provider of chain) {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const report = await provider.run();
+          CACHE.set(cacheKey, { at: Date.now(), report });
+          return report;
+        } catch (err) {
+          lastErr = err as Error;
+          const msg = lastErr.message;
+          const retryable = msg.startsWith("RETRY_");
+          console.warn(`[analysis] ${provider.name} attempt ${attempt + 1} failed: ${msg}`);
+          if (!retryable) break; // non-retryable → next provider
+          if (attempt === 0) await sleep(800 + Math.random() * 600); // backoff before retry
+        }
       }
     }
 
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("Missing GEMINI_API_KEY or LOVABLE_API_KEY");
-
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
-      body: JSON.stringify({
-        model: "google/gemini-3.5-flash",
-        messages: [{ role: "user", content: prompt }],
-        response_format: { type: "json_object" },
-        temperature: 0.3,
-        max_tokens: 4096,
-      }),
-    });
-    if (res.status === 429) throw new Error("Rate limit reached. Try again in a moment.");
-    if (res.status === 402) throw new Error("AI credits exhausted. Please add credits in Settings → Plans & credits.");
-    if (!res.ok) throw new Error(`AI gateway error (${res.status}): ${(await res.text()).slice(0, 200)}`);
-    const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-    const text = json.choices?.[0]?.message?.content ?? "";
-    return extractJson(text);
+    throw new Error(
+      `All AI providers are busy right now. Please try again in a few seconds. (${lastErr?.message ?? "unknown"})`,
+    );
   });
