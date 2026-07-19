@@ -1,8 +1,9 @@
 import { createFileRoute, Outlet, redirect, Link, useRouter, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, TrendingUp, Wallet, Trophy, Rocket, LogOut,
-  CandlestickChart, GraduationCap, User, Settings, BookOpen, Shield, Brain,
+  CandlestickChart, GraduationCap, User, Settings, BookOpen, Shield, Brain, ArrowLeft,
 } from "lucide-react";
+
 import { supabase } from "@/integrations/supabase/client";
 import { Starfield } from "@/components/Starfield";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
