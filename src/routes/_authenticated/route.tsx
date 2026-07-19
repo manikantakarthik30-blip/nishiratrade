@@ -114,6 +114,19 @@ function AuthedLayout() {
           </span>
         </Link>
 
+        {pathname !== "/dashboard" && (
+          <button
+            type="button"
+            aria-label="Go back"
+            onClick={() => router.history.back()}
+            className="flex h-8 items-center gap-1 rounded-md border border-border/60 bg-background/40 px-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden sm:inline">Back</span>
+          </button>
+        )}
+
+
         {/* Center nav — desktop only */}
         <nav className="mx-auto hidden items-center gap-8 md:flex">
           {nav.map((item) => {
