@@ -129,7 +129,12 @@ function PanelInner({
       });
       setSuccess(true);
       toast.success("Order Placed!");
-      qc.invalidateQueries();
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["profile"] }),
+        qc.invalidateQueries({ queryKey: ["holdings"] }),
+        qc.invalidateQueries({ queryKey: ["holding", ticker] }),
+        qc.invalidateQueries({ queryKey: ["trades"] }),
+      ]);
       setTimeout(onClose, 900);
     } catch (e) {
       setShake(true);
