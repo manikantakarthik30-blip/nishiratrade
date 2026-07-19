@@ -37,7 +37,9 @@ const nav = [
   { title: "Leaderboard", url: "/leaderboard", icon: Trophy },
 ] as const;
 
-const mobileNav = nav.filter((n) => n.title !== "Leaderboard" && n.title !== "Learn" && n.title !== "Docs");
+const mobileNav = nav.filter(
+  (n) => ["Dashboard", "Markets", "Portfolio", "Chart", "Learn"].includes(n.title)
+);
 
 function AuthedLayout() {
   const router = useRouter();
