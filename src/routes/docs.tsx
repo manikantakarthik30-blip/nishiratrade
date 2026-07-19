@@ -475,7 +475,7 @@ function DocsPage() {
               {/* JSON parse */}
               <details className="group rounded-xl border border-white/10 bg-white/[0.03] p-4">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
-                  <span className="flex items-center gap-2"><LifeBuoy className="h-4 w-4 text-primary" /> "Expected ',' or '}' after property value in JSON…"</span>
+                  <span className="flex items-center gap-2"><LifeBuoy className="h-4 w-4 text-primary" /> {`"Expected ',' or '}' after property value in JSON…"`}</span>
                   <Kbd>parse</Kbd>
                 </summary>
                 <div className="mt-3 space-y-2 text-sm text-foreground/90">
