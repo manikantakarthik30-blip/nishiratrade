@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, TrendingUp, TrendingDown, Zap } from "lucide-react";
+import { Search, X, TrendingUp, TrendingDown, Zap, Star } from "lucide-react";
+import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +13,7 @@ import { useTicker } from "@/hooks/useLivePrices";
 import { Sparkline } from "@/components/Sparkline";
 import { CandleChart } from "@/components/CandleChart";
 import { QuickTradePanel } from "@/components/QuickTradePanel";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/markets")({
   component: MarketsPage,
@@ -22,12 +25,36 @@ const INITIAL_LIMIT = 10;
 
 function MarketsPage() {
   useTicker();
+  const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [selected, setSelected] = useState<string | null>(null);
   const [quickTicker, setQuickTicker] = useState<string | null>(null);
   const [limit, setLimit] = useState(INITIAL_LIMIT);
   const [booted, setBooted] = useState(false);
+
+  const { data: watchlist = [] } = useQuery({
+    queryKey: ["watchlist"],
+    queryFn: async () => {
+      const { data } = await supabase.from("watchlist").select("*");
+      return data ?? [];
+    },
+  });
+
+  const toggleWatch = async (ticker: string, market: "IN" | "US") => {
+    const existing = watchlist.find((w) => w.ticker === ticker);
+    if (existing) {
+      await supabase.from("watchlist").delete().eq("id", existing.id);
+      toast.success(`${ticker} removed from watchlist`);
+    } else {
+      const u = (await supabase.auth.getUser()).data.user;
+      if (!u) return;
+      const { error } = await supabase.from("watchlist").insert({ ticker, market, user_id: u.id });
+      if (error) toast.error(error.message);
+      else toast.success(`${ticker} added to watchlist`);
+    }
+    qc.invalidateQueries({ queryKey: ["watchlist"] });
+  };
 
   useEffect(() => {
     // brief skeleton so the UI paints instantly
@@ -85,15 +112,24 @@ function MarketsPage() {
             </div>
           ))}
         {booted &&
-          visible.map((s) => (
+          visible.map((s) => {
+            const onWatch = watchlist.some((w) => w.ticker === s.ticker);
+            return (
             <motion.div
               key={s.ticker}
               layout
               whileHover={{ y: -4 }}
-              className="glass rounded-xl p-4 transition-shadow hover:shadow-[var(--shadow-glow)]"
+              className="glass relative rounded-xl p-4 transition-shadow hover:shadow-[var(--shadow-glow)]"
             >
+              <button
+                onClick={(e) => { e.stopPropagation(); toggleWatch(s.ticker, s.market); }}
+                title={onWatch ? "Remove from watchlist" : "Add to watchlist"}
+                className={`absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full border transition ${onWatch ? "border-yellow-400/60 bg-yellow-400/10 text-yellow-400" : "border-border/60 bg-background/40 text-muted-foreground hover:text-yellow-400 hover:border-yellow-400/60"}`}
+              >
+                <Star className={`h-3.5 w-3.5 ${onWatch ? "fill-current" : ""}`} />
+              </button>
               <div onClick={() => setSelected(s.ticker)} className="cursor-pointer">
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between pr-9">
                   <div className="min-w-0">
                     <div className="truncate font-bold">{s.name}</div>
                     <div className="mt-0.5 text-xs text-muted-foreground">{s.ticker}</div>
@@ -125,7 +161,8 @@ function MarketsPage() {
                 </Button>
               </div>
             </motion.div>
-          ))}
+            );
+          })}
       </div>
 
       {booted && canLoadMore && (

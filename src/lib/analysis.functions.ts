@@ -92,7 +92,29 @@ const extractJson = (text: string): AnalysisReport => {
   const start = cleaned.indexOf("{");
   const end = cleaned.lastIndexOf("}");
   const slice = start >= 0 && end > start ? cleaned.slice(start, end + 1) : cleaned;
-  return JSON.parse(slice) as AnalysisReport;
+  try {
+    return JSON.parse(slice) as AnalysisReport;
+  } catch {
+    // Repair common model JSON issues: trailing commas, smart quotes,
+    // unescaped newlines inside strings, missing commas between properties.
+    let repaired = slice
+      .replace(/[\u201C\u201D]/g, '"')
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/,(\s*[}\]])/g, "$1")
+      .replace(/}\s*\n\s*"/g, '},\n"')
+      .replace(/"\s*\n\s*"/g, '",\n"');
+    // Escape raw newlines inside string literals
+    repaired = repaired.replace(/"((?:\\.|[^"\\])*)"/gs, (_m, inner) =>
+      '"' + inner.replace(/\r?\n/g, "\\n") + '"',
+    );
+    try {
+      return JSON.parse(repaired) as AnalysisReport;
+    } catch (e) {
+      throw new Error(
+        "The AI returned malformed JSON. Please click Generate again — this usually succeeds on retry.",
+      );
+    }
+  }
 };
 
 export const generateStockAnalysis = createServerFn({ method: "POST" })
@@ -110,7 +132,7 @@ export const generateStockAnalysis = createServerFn({ method: "POST" })
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               contents: [{ role: "user", parts: [{ text: prompt }] }],
-              generationConfig: { temperature: 0.3, maxOutputTokens: 1800, responseMimeType: "application/json" },
+              generationConfig: { temperature: 0.3, maxOutputTokens: 4096, responseMimeType: "application/json" },
             }),
           },
         );
@@ -137,7 +159,7 @@ export const generateStockAnalysis = createServerFn({ method: "POST" })
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
         temperature: 0.3,
-        max_tokens: 1800,
+        max_tokens: 4096,
       }),
     });
     if (res.status === 429) throw new Error("Rate limit reached. Try again in a moment.");
