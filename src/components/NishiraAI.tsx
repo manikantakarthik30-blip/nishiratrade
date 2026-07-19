@@ -4,6 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { Rocket, X, Minus, Send, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { askNishiraAI } from "@/lib/nishira-ai.functions";
+import { DraggableAIButton, getSavedCorner, type Corner } from "./DraggableAIButton";
+
 
 type Msg = {
   role: "user" | "assistant";
