@@ -151,6 +151,12 @@ function PortfolioPage() {
         <AllocationCard title="Indian Allocation" data={pieDataInr} />
         <AllocationCard title="US Allocation" data={pieDataUsd} />
       </div>
+
+      <QuickTradePanel
+        ticker={quick?.ticker ?? null}
+        defaultSide={quick?.side ?? "BUY"}
+        onClose={() => setQuick(null)}
+      />
     </div>
   );
 }
