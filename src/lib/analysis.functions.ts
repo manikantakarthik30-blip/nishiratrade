@@ -102,26 +102,33 @@ export const generateStockAnalysis = createServerFn({ method: "POST" })
     const geminiKey = process.env.GEMINI_API_KEY;
 
     if (geminiKey) {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.3, maxOutputTokens: 1800, responseMimeType: "application/json" },
-          }),
-        },
-      );
-      if (res.status === 429) throw new Error("Rate limit reached. Try again in a moment.");
-      if (!res.ok) throw new Error(`Gemini error (${res.status}): ${(await res.text()).slice(0, 200)}`);
-      const json = (await res.json()) as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
-      const text = json.candidates?.[0]?.content?.parts?.map((p) => p.text).join("") ?? "";
-      return extractJson(text);
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ role: "user", parts: [{ text: prompt }] }],
+              generationConfig: { temperature: 0.3, maxOutputTokens: 1800, responseMimeType: "application/json" },
+            }),
+          },
+        );
+        if (res.status === 429) throw new Error("GEMINI_RATE_LIMIT");
+        if (!res.ok) throw new Error(`Gemini error (${res.status}): ${(await res.text()).slice(0, 200)}`);
+        const json = (await res.json()) as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+        const text = json.candidates?.[0]?.content?.parts?.map((p) => p.text).join("") ?? "";
+        return extractJson(text);
+      } catch (err) {
+        // Fall through to Lovable AI gateway on rate limit or transient errors
+        if (!process.env.LOVABLE_API_KEY) throw err;
+        console.warn("Gemini failed, falling back to Lovable AI:", (err as Error).message);
+      }
     }
 
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Missing GEMINI_API_KEY or LOVABLE_API_KEY");
+
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
