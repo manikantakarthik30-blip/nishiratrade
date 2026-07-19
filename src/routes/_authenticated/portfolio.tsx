@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import { Download } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +10,7 @@ import { getStock, livePrice, formatMoney } from "@/lib/stocks";
 import { useTicker } from "@/hooks/useLivePrices";
 import { PortfolioAreaChart } from "@/components/PortfolioAreaChart";
 import { QuickTradePanel } from "@/components/QuickTradePanel";
+import { downloadPortfolioExcel, downloadTradeHistory } from "@/utils/downloadData";
 
 export const Route = createFileRoute("/_authenticated/portfolio")({
   component: PortfolioPage,
@@ -71,9 +73,31 @@ function PortfolioPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-4 md:space-y-6">
-      <div>
-        <h1 className="font-display text-xl font-bold md:text-3xl">Portfolio</h1>
-        <p className="mt-1 text-xs text-muted-foreground md:text-sm">Your current holdings, allocation, and P&L.</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-xl font-bold md:text-3xl">Portfolio</h1>
+          <p className="mt-1 text-xs text-muted-foreground md:text-sm">Your current holdings, allocation, and P&L.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => downloadPortfolioExcel(holdings)}
+            disabled={holdings.length === 0}
+            className="border-success/40 text-success hover:bg-success/10"
+          >
+            <Download className="mr-1.5 h-3.5 w-3.5" /> Export Portfolio
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => downloadTradeHistory(trades)}
+            disabled={trades.length === 0}
+            className="border-primary/40 text-primary hover:bg-primary/10"
+          >
+            <Download className="mr-1.5 h-3.5 w-3.5" /> Trade History
+          </Button>
+        </div>
       </div>
 
       {/* Summary cards */}
