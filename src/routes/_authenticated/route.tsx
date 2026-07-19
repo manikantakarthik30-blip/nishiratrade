@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { formatMoney } from "@/lib/stocks";
 import { useEnsureProfile } from "@/hooks/useEnsureProfile";
+import { useSessionTimeout } from "@/hooks/useSessionTimeout";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -42,8 +44,7 @@ function AuthedLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isTradePage = pathname.startsWith("/trade/");
   useEnsureProfile();
-
-  const { data: user } = useQuery({
+  const { showWarning, dismiss } = useSessionTimeout(30);
     queryKey: ["auth-user"],
     queryFn: async () => (await supabase.auth.getUser()).data.user,
     staleTime: 60_000,
