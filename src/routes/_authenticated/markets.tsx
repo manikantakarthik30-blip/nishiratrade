@@ -112,15 +112,24 @@ function MarketsPage() {
             </div>
           ))}
         {booted &&
-          visible.map((s) => (
+          visible.map((s) => {
+            const onWatch = watchlist.some((w) => w.ticker === s.ticker);
+            return (
             <motion.div
               key={s.ticker}
               layout
               whileHover={{ y: -4 }}
-              className="glass rounded-xl p-4 transition-shadow hover:shadow-[var(--shadow-glow)]"
+              className="glass relative rounded-xl p-4 transition-shadow hover:shadow-[var(--shadow-glow)]"
             >
+              <button
+                onClick={(e) => { e.stopPropagation(); toggleWatch(s.ticker, s.market); }}
+                title={onWatch ? "Remove from watchlist" : "Add to watchlist"}
+                className={`absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full border transition ${onWatch ? "border-yellow-400/60 bg-yellow-400/10 text-yellow-400" : "border-border/60 bg-background/40 text-muted-foreground hover:text-yellow-400 hover:border-yellow-400/60"}`}
+              >
+                <Star className={`h-3.5 w-3.5 ${onWatch ? "fill-current" : ""}`} />
+              </button>
               <div onClick={() => setSelected(s.ticker)} className="cursor-pointer">
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between pr-9">
                   <div className="min-w-0">
                     <div className="truncate font-bold">{s.name}</div>
                     <div className="mt-0.5 text-xs text-muted-foreground">{s.ticker}</div>
@@ -152,7 +161,8 @@ function MarketsPage() {
                 </Button>
               </div>
             </motion.div>
-          ))}
+            );
+          })}
       </div>
 
       {booted && canLoadMore && (
