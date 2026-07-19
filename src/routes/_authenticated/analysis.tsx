@@ -2,13 +2,20 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brain, Download, Loader2, Search, Sparkles, TrendingUp, X } from "lucide-react";
+import { Brain, ChevronDown, Download, FileText, Loader2, Search, Sparkles, TrendingUp, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { STOCKS_BY_TICKER, livePrice, livePctChange } from "@/lib/stocks";
 import { useTicker } from "@/hooks/useLivePrices";
 import { generateStockAnalysis, type AnalysisReport } from "@/lib/analysis.functions";
+import { downloadAnalysisPDF, downloadAnalysisDocx } from "@/utils/downloadData";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/analysis")({
