@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { formatMoney } from "@/lib/stocks";
 import { useEnsureProfile } from "@/hooks/useEnsureProfile";
+import { useSessionTimeout } from "@/hooks/useSessionTimeout";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -42,6 +44,7 @@ function AuthedLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isTradePage = pathname.startsWith("/trade/");
   useEnsureProfile();
+  const { showWarning, dismiss } = useSessionTimeout(30);
 
   const { data: user } = useQuery({
     queryKey: ["auth-user"],
@@ -73,6 +76,16 @@ function AuthedLayout() {
   return (
     <div className="flex min-h-screen w-full flex-col overflow-x-hidden">
       <Starfield density={80} />
+
+      {showWarning && (
+        <div className="sticky top-0 z-50 flex items-center justify-between gap-3 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2 text-xs text-amber-200">
+          <span>You've been inactive for 30 minutes. Still there?</span>
+          <Button size="sm" variant="outline" className="h-7 text-xs" onClick={dismiss}>
+            Yes, I'm here
+          </Button>
+        </div>
+      )}
+
 
       {/* Top header */}
       <header
