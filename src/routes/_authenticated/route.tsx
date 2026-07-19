@@ -12,6 +12,7 @@ import {
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { formatMoney } from "@/lib/stocks";
+import { useEnsureProfile } from "@/hooks/useEnsureProfile";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -40,6 +41,7 @@ function AuthedLayout() {
   const qc = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isTradePage = pathname.startsWith("/trade/");
+  useEnsureProfile();
 
   const { data: user } = useQuery({
     queryKey: ["auth-user"],
