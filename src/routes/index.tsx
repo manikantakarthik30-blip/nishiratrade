@@ -1,13 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { Rocket, ShieldCheck, LineChart, GraduationCap, Menu, X, PlayCircle } from "lucide-react";
+import { Rocket, ShieldCheck, LineChart, GraduationCap, Menu, X, PlayCircle, LayoutDashboard } from "lucide-react";
 import { SpaceCanvas } from "@/components/SpaceCanvas";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const Route = createFileRoute("/")({
   component: Landing,
 });
+
 
 const features = [
   {
@@ -36,8 +40,20 @@ const stats = [
 
 function Landing() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { data: user } = useQuery({
+    queryKey: ["landing-auth-user"],
+    queryFn: async () => (await supabase.auth.getUser()).data.user,
+    staleTime: 30_000,
+  });
+  const displayName =
+    (user?.user_metadata?.full_name as string | undefined) ||
+    user?.email?.split("@")[0] ||
+    "trader";
+  const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
+  const initials = displayName.slice(0, 2).toUpperCase();
 
   const scrollToLearn = () => {
+
     document.getElementById("learn")?.scrollIntoView({ behavior: "smooth" });
     setMenuOpen(false);
   };
@@ -67,13 +83,47 @@ function Landing() {
           </nav>
 
           <div className="hidden md:flex items-center gap-2 shrink-0">
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/auth" search={{ mode: "login" }}>Login</Link>
-            </Button>
-            <Button asChild size="sm" className="animate-pulse-glow">
-              <Link to="/auth" search={{ mode: "signup" }}>Sign Up</Link>
-            </Button>
+            {user ? (
+              <Link
+                to="/dashboard"
+                className="flex items-center gap-2 rounded-full border border-border/60 bg-background/40 px-2 py-1 pr-3 text-sm hover:border-primary/60"
+              >
+                <Avatar className="h-7 w-7">
+                  {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} />}
+                  <AvatarFallback className="bg-primary/20 text-[10px] font-bold text-primary">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="max-w-[120px] truncate">{displayName}</span>
+              </Link>
+            ) : (
+              <>
+                <Button asChild variant="ghost" size="sm">
+                  <Link to="/auth" search={{ mode: "login" }}>Login</Link>
+                </Button>
+                <Button asChild size="sm" className="animate-pulse-glow">
+                  <Link to="/auth" search={{ mode: "signup" }}>Sign Up</Link>
+                </Button>
+              </>
+            )}
           </div>
+
+          {/* Mobile: avatar (if logged in) + hamburger */}
+          {user && (
+            <Link
+              to="/dashboard"
+              aria-label="Open dashboard"
+              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/50"
+            >
+              <Avatar className="h-8 w-8">
+                {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} />}
+                <AvatarFallback className="bg-primary/20 text-[10px] font-bold text-primary">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
+          )}
+
 
           {/* Mobile hamburger */}
           <button
@@ -92,8 +142,17 @@ function Landing() {
               <Link to="/" onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 text-sm hover:bg-muted">Home</Link>
               <a href="#features" onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 text-sm hover:bg-muted">Markets</a>
               <button onClick={scrollToLearn} className="rounded-md px-3 py-2 text-left text-sm hover:bg-muted">Learn</button>
-              <Link to="/auth" search={{ mode: "login" }} onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 text-sm hover:bg-muted">Login</Link>
-              <Link to="/auth" search={{ mode: "signup" }} onClick={() => setMenuOpen(false)} className="mt-1 rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground text-center font-medium">Sign Up</Link>
+              {user ? (
+                <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="mt-1 flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground font-medium">
+                  <LayoutDashboard className="h-4 w-4" /> Go to Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link to="/auth" search={{ mode: "login" }} onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 text-sm hover:bg-muted">Login</Link>
+                  <Link to="/auth" search={{ mode: "signup" }} onClick={() => setMenuOpen(false)} className="mt-1 rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground text-center font-medium">Sign Up</Link>
+                </>
+              )}
+
             </nav>
           </div>
         )}
