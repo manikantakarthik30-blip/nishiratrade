@@ -14,6 +14,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Starfield } from "@/components/Starfield";
 import { applyTheme, getStoredThemeId } from "@/lib/themes";
+import { NishiraAI } from "@/components/NishiraAI";
 
 function NotFoundComponent() {
   return (
@@ -139,6 +140,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
+      <NishiraAI />
       <Toaster />
     </QueryClientProvider>
   );
