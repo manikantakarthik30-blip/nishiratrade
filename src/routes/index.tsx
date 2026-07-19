@@ -142,8 +142,17 @@ function Landing() {
               <Link to="/" onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 text-sm hover:bg-muted">Home</Link>
               <a href="#features" onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 text-sm hover:bg-muted">Markets</a>
               <button onClick={scrollToLearn} className="rounded-md px-3 py-2 text-left text-sm hover:bg-muted">Learn</button>
-              <Link to="/auth" search={{ mode: "login" }} onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 text-sm hover:bg-muted">Login</Link>
-              <Link to="/auth" search={{ mode: "signup" }} onClick={() => setMenuOpen(false)} className="mt-1 rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground text-center font-medium">Sign Up</Link>
+              {user ? (
+                <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="mt-1 flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground font-medium">
+                  <LayoutDashboard className="h-4 w-4" /> Go to Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link to="/auth" search={{ mode: "login" }} onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-2 text-sm hover:bg-muted">Login</Link>
+                  <Link to="/auth" search={{ mode: "signup" }} onClick={() => setMenuOpen(false)} className="mt-1 rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground text-center font-medium">Sign Up</Link>
+                </>
+              )}
+
             </nav>
           </div>
         )}
