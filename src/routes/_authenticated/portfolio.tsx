@@ -128,24 +128,6 @@ function PortfolioPage() {
                     </td>
                   </tr>
                 ))}
-              </thead>
-              <tbody>
-                {enriched.map((e) => (
-                  <tr key={e.id} className="border-t border-border/30">
-                    <td className="py-2 font-medium">
-                      {e.ticker} <span className="text-xs text-muted-foreground">{e.market}</span>
-                    </td>
-                    <td>{Number(e.qty)}</td>
-                    <td>{formatMoney(Number(e.avg_price), e.stock?.currency ?? "USD")}</td>
-                    <td>{formatMoney(e.cur, e.stock?.currency ?? "USD")}</td>
-                    <td className={e.pl >= 0 ? "text-success" : "text-destructive"}>
-                      {formatMoney(e.pl, e.stock?.currency ?? "USD")}
-                    </td>
-                    <td className={`text-right ${e.plPct >= 0 ? "text-success" : "text-destructive"}`}>
-                      {e.plPct.toFixed(2)}%
-                    </td>
-                  </tr>
-                ))}
               </tbody>
             </table>
           </div>
