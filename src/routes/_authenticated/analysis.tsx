@@ -390,7 +390,7 @@ function AnalysisPage() {
             <div key={item.ticker}>
               {isLoading && <ReportSkeleton ticker={item.ticker} />}
               {report && !isLoading && (
-                <ReportCard item={item} report={report} onDownload={() => downloadReport(item, report)} />
+                <ReportCard item={item} report={report} onExcel={() => downloadReport(item, report)} />
               )}
             </div>
           );
