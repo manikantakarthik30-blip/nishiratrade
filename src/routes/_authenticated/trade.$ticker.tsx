@@ -75,7 +75,12 @@ function TradePage() {
         data: { ticker: stock.ticker, market: stock.market, side, qty, price: execPrice },
       });
       toast.success(`${side} ${qty} ${stock.ticker} @ ${formatMoney(execPrice, stock.currency)}`);
-      qc.invalidateQueries();
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["profile"] }),
+        qc.invalidateQueries({ queryKey: ["holdings"] }),
+        qc.invalidateQueries({ queryKey: ["holding", ticker] }),
+        qc.invalidateQueries({ queryKey: ["trades"] }),
+      ]);
       setQty(1);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Order failed";
