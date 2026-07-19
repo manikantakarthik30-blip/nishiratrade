@@ -427,9 +427,131 @@ function DocsPage() {
             </ul>
           </section>
 
+          {/* TROUBLESHOOTING */}
+          <section id="troubleshooting" className="scroll-mt-24">
+            <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wider text-primary">
+              New
+            </div>
+            <h2 className="font-display text-2xl font-bold md:text-3xl">14. Troubleshooting</h2>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Fixes for the most common issues around AI reliability, rate limits, and malformed JSON responses.
+            </p>
+
+            {/* Quick diagnosis */}
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {[
+                { code: "429", label: "Rate limit", tone: "text-amber-300 border-amber-400/25 bg-amber-400/[0.06]" },
+                { code: "402", label: "Credits exhausted", tone: "text-red-300 border-red-400/25 bg-red-400/[0.06]" },
+                { code: "5xx", label: "Upstream hiccup", tone: "text-sky-300 border-sky-400/25 bg-sky-400/[0.06]" },
+              ].map((s) => (
+                <div key={s.code} className={`rounded-xl border p-3 text-sm ${s.tone}`}>
+                  <div className="font-mono text-lg font-bold">{s.code}</div>
+                  <div className="text-xs opacity-80">{s.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Issue cards */}
+            <div className="mt-6 space-y-4">
+              {/* Rate limit */}
+              <details open className="group rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
+                  <span className="flex items-center gap-2"><LifeBuoy className="h-4 w-4 text-primary" /> "Rate limit reached. Try again in a moment."</span>
+                  <Kbd>429</Kbd>
+                </summary>
+                <div className="mt-3 space-y-2 text-sm text-foreground/90">
+                  <div><b>Why:</b> Google AI free tier caps at 15 requests / min. The Analysis Lab or NISHIRA.AI hit it during rapid retries.</div>
+                  <div><b>Auto-recovery:</b> Both endpoints already chain through <Code>gemini-2.0-flash → gemini-1.5-flash → Lovable gateway → gemini-2.5-flash-lite</Code> with exponential backoff.</div>
+                  <div><b>What to do:</b></div>
+                  <ul className="list-disc space-y-1 pl-6">
+                    <li>Wait 30–60 seconds, then retry — analysis results are cached for 5 min so a re-run is free.</li>
+                    <li>Reduce burst usage: don't queue &gt; 3 tickers in Analysis Lab within a minute.</li>
+                    <li>Long-term: enable billing on your Google AI Studio key (2,000+ RPM) — the app will pick it up automatically.</li>
+                    <li>Keep <Code>LOVABLE_API_KEY</Code> funded — it's a completely separate quota used as backup.</li>
+                  </ul>
+                </div>
+              </details>
+
+              {/* JSON parse */}
+              <details className="group rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
+                  <span className="flex items-center gap-2"><LifeBuoy className="h-4 w-4 text-primary" /> "Expected ',' or '}' after property value in JSON…"</span>
+                  <Kbd>parse</Kbd>
+                </summary>
+                <div className="mt-3 space-y-2 text-sm text-foreground/90">
+                  <div><b>Why:</b> The AI's JSON response was truncated (token cap) or contained trailing commas / smart quotes.</div>
+                  <div><b>Already fixed:</b> <Code>maxOutputTokens</Code> is 4096, and a repair pass handles trailing commas, curly quotes, missing separators, and raw newlines.</div>
+                  <div><b>If it still happens:</b></div>
+                  <ul className="list-disc space-y-1 pl-6">
+                    <li>Retry once — different sampling usually clears it.</li>
+                    <li>Shorten your prompt / pick fewer sections in the report to stay under the token budget.</li>
+                    <li>Check the browser console for the raw payload; if it's obviously cut mid-word, that's a token-limit issue — file it.</li>
+                  </ul>
+                </div>
+              </details>
+
+              {/* Credits */}
+              <details className="group rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
+                  <span className="flex items-center gap-2"><LifeBuoy className="h-4 w-4 text-primary" /> "Credits exhausted" / 402</span>
+                  <Kbd>402</Kbd>
+                </summary>
+                <div className="mt-3 space-y-2 text-sm text-foreground/90">
+                  <div><b>Why:</b> The Lovable AI backup gateway is out of credits AND Google is rate-limited.</div>
+                  <div><b>Fix:</b> Top up credits in <b>Settings → Plans &amp; credits</b>, or wait for the Google quota to reset (1 min window).</div>
+                </div>
+              </details>
+
+              {/* Prices stuck */}
+              <details className="group rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
+                  <span className="flex items-center gap-2"><LifeBuoy className="h-4 w-4 text-primary" /> Prices frozen or "N/A"</span>
+                  <Kbd>feed</Kbd>
+                </summary>
+                <div className="mt-3 space-y-2 text-sm text-foreground/90">
+                  <div><b>US stocks:</b> Finnhub WebSocket drops outside NYSE hours — that's expected. Falls back to the last known price.</div>
+                  <div><b>Indian stocks:</b> Broker feed may throttle; the app auto-switches to a realistic simulated tick.</div>
+                  <div><b>Fix:</b> Refresh the page. If prices stay flat during market hours for 60+ seconds, the feed is temporarily down — try again shortly.</div>
+                </div>
+              </details>
+
+              {/* Balance zero */}
+              <details className="group rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
+                  <span className="flex items-center gap-2"><LifeBuoy className="h-4 w-4 text-primary" /> Balance shows ₹0 / $0 in header</span>
+                  <Kbd>init</Kbd>
+                </summary>
+                <div className="mt-3 space-y-2 text-sm text-foreground/90">
+                  <div><b>Why:</b> Rare — profile row not fully initialized on first sign-in.</div>
+                  <div><b>Fix:</b> Sign out and sign back in. The <Code>useEnsureProfile</Code> hook re-seeds <Code>₹10,00,000</Code> + <Code>$10,000</Code> automatically.</div>
+                </div>
+              </details>
+
+              {/* Report export */}
+              <details className="group rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
+                  <span className="flex items-center gap-2"><LifeBuoy className="h-4 w-4 text-primary" /> Excel / PDF / Word download doesn't start</span>
+                  <Kbd>export</Kbd>
+                </summary>
+                <div className="mt-3 space-y-2 text-sm text-foreground/90">
+                  <ul className="list-disc space-y-1 pl-6">
+                    <li>Allow pop-ups / downloads for this site in your browser.</li>
+                    <li>On iOS Safari, files save to <b>Files → Downloads</b>.</li>
+                    <li>Generate the report first — an empty Analysis card has nothing to export.</li>
+                  </ul>
+                </div>
+              </details>
+            </div>
+
+            <Tip>
+              <b>Best practice for zero downtime:</b> keep both a funded Google AI key <i>and</i> a funded Lovable AI Gateway — the app fails over between them silently, so you never see a hard error.
+            </Tip>
+            <Note>Still stuck? Open NISHIRA.AI from the floating 🚀 button and paste the error — it can often explain what happened and what to try.</Note>
+          </section>
+
           {/* FAQ */}
           <section id="faqs" className="scroll-mt-24 pb-24">
-            <h2 className="font-display text-2xl font-bold md:text-3xl">14. FAQs</h2>
+            <h2 className="font-display text-2xl font-bold md:text-3xl">15. FAQs</h2>
             <div className="mt-4 space-y-3 text-sm">
               {[
                 { q: "Is this real money?", a: "No — 100% virtual. Nothing on NISHIRA.TRADE touches real cash." },
