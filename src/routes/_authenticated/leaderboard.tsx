@@ -36,7 +36,11 @@ function LeaderboardPage() {
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
-    queryFn: async () => (await supabase.from("profiles").select("*").maybeSingle()).data,
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return null;
+      return (await supabase.from("profiles").select("*").eq("id", u.user.id).maybeSingle()).data;
+    },
   });
 
   const { data: holdings = [] } = useQuery({
