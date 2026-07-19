@@ -45,6 +45,8 @@ function AuthedLayout() {
   const isTradePage = pathname.startsWith("/trade/");
   useEnsureProfile();
   const { showWarning, dismiss } = useSessionTimeout(30);
+
+  const { data: user } = useQuery({
     queryKey: ["auth-user"],
     queryFn: async () => (await supabase.auth.getUser()).data.user,
     staleTime: 60_000,
