@@ -82,9 +82,13 @@ export const Route = createFileRoute("/chart")({
   },
   head: () => ({
     meta: [
-      { title: "Chart — NISHIRA.TRADE" },
-      { name: "description", content: "Full-screen TradingView chart for NSE, BSE, NYSE and NASDAQ." },
+      { title: "Live Chart — NISHIRA.TRADE" },
+      { name: "description", content: "Full-screen TradingView chart for NSE, BSE, NYSE and NASDAQ stocks and indices." },
+      { property: "og:title", content: "Live Chart — NISHIRA.TRADE" },
+      { property: "og:description", content: "Real-time TradingView charts inside NISHIRA.TRADE." },
+      { property: "og:url", content: "https://nishiratrade.lovable.app/chart" },
     ],
+    links: [{ rel: "canonical", href: "https://nishiratrade.lovable.app/chart" }],
   }),
   component: ChartPage,
 });
