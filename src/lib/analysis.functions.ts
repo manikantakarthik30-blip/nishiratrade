@@ -159,7 +159,7 @@ export const generateStockAnalysis = createServerFn({ method: "POST" })
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },
         temperature: 0.3,
-        max_tokens: 1800,
+        max_tokens: 4096,
       }),
     });
     if (res.status === 429) throw new Error("Rate limit reached. Try again in a moment.");
