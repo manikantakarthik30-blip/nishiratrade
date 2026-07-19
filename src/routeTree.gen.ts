@@ -17,6 +17,7 @@ import { Route as ChartRouteImport } from './routes/chart'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BlogBestPaperTradingAppsRouteImport } from './routes/blog.best-paper-trading-apps'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -67,6 +68,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogBestPaperTradingAppsRoute =
+  BlogBestPaperTradingAppsRouteImport.update({
+    id: '/blog/best-paper-trading-apps',
+    path: '/blog/best-paper-trading-apps',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -137,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/security': typeof AuthenticatedSecurityRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/blog/best-paper-trading-apps': typeof BlogBestPaperTradingAppsRoute
   '/trade/$ticker': typeof AuthenticatedTradeTickerRoute
 }
 export interface FileRoutesByTo {
@@ -156,6 +164,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/security': typeof AuthenticatedSecurityRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/blog/best-paper-trading-apps': typeof BlogBestPaperTradingAppsRoute
   '/trade/$ticker': typeof AuthenticatedTradeTickerRoute
 }
 export interface FileRoutesById {
@@ -177,6 +186,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/security': typeof AuthenticatedSecurityRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/blog/best-paper-trading-apps': typeof BlogBestPaperTradingAppsRoute
   '/_authenticated/trade/$ticker': typeof AuthenticatedTradeTickerRoute
 }
 export interface FileRouteTypes {
@@ -198,6 +208,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/security'
     | '/settings'
+    | '/blog/best-paper-trading-apps'
     | '/trade/$ticker'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/security'
     | '/settings'
+    | '/blog/best-paper-trading-apps'
     | '/trade/$ticker'
   id:
     | '__root__'
@@ -237,6 +249,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/security'
     | '/_authenticated/settings'
+    | '/blog/best-paper-trading-apps'
     | '/_authenticated/trade/$ticker'
   fileRoutesById: FileRoutesById
 }
@@ -249,6 +262,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  BlogBestPaperTradingAppsRoute: typeof BlogBestPaperTradingAppsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -307,6 +321,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/best-paper-trading-apps': {
+      id: '/blog/best-paper-trading-apps'
+      path: '/blog/best-paper-trading-apps'
+      fullPath: '/blog/best-paper-trading-apps'
+      preLoaderRoute: typeof BlogBestPaperTradingAppsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/settings': {
@@ -420,6 +441,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  BlogBestPaperTradingAppsRoute: BlogBestPaperTradingAppsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
