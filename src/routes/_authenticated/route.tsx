@@ -79,7 +79,7 @@ function AuthedLayout() {
     "trader";
   const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
   const initials = displayName.slice(0, 2).toUpperCase();
-  const inrBalance = Number(profile?.balance_inr ?? 0);
+  const usdBalance = Number(profile?.balance_usd ?? 0);
 
   return (
     <div className="flex min-h-screen w-full flex-col overflow-x-hidden">
