@@ -1,13 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { Rocket, ShieldCheck, LineChart, GraduationCap, Menu, X, PlayCircle } from "lucide-react";
+import { Rocket, ShieldCheck, LineChart, GraduationCap, Menu, X, PlayCircle, LayoutDashboard } from "lucide-react";
 import { SpaceCanvas } from "@/components/SpaceCanvas";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const Route = createFileRoute("/")({
   component: Landing,
 });
+
 
 const features = [
   {
