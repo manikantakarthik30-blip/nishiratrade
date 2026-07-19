@@ -29,71 +29,80 @@ const InputSchema = z.object({
   messages: z.array(MessageSchema).max(40),
 });
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function callGemini(model: string, key: string, messages: z.infer<typeof MessageSchema>[]) {
+  const contents = messages.map((m) => ({
+    role: m.role === "assistant" ? "model" : "user",
+    parts: [{ text: m.content }],
+  }));
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents,
+        generationConfig: { temperature: 0.7, maxOutputTokens: 500 },
+      }),
+    },
+  );
+  if (res.status === 429 || res.status === 503) throw new Error(`RETRY_${res.status}`);
+  if (!res.ok) throw new Error(`Gemini ${model} (${res.status}): ${(await res.text()).slice(0, 160)}`);
+  const json = (await res.json()) as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+  return json.candidates?.[0]?.content?.parts?.map((p) => p.text).join("").trim() ?? "";
+}
+
+async function callLovable(model: string, key: string, messages: z.infer<typeof MessageSchema>[]) {
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
+      max_tokens: 500,
+      temperature: 0.7,
+    }),
+  });
+  if (res.status === 429 || res.status === 503) throw new Error(`RETRY_${res.status}`);
+  if (res.status === 402) throw new Error("AI credits exhausted. Please add credits in Settings → Plans & credits.");
+  if (!res.ok) throw new Error(`Lovable ${model} (${res.status}): ${(await res.text()).slice(0, 160)}`);
+  const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+  return json.choices?.[0]?.message?.content?.trim() ?? "";
+}
+
 export const askNishiraAI = createServerFn({ method: "POST" })
   .inputValidator((raw: unknown) => InputSchema.parse(raw))
   .handler(async ({ data }) => {
-    // Prefer user-supplied Gemini API key (direct Google API, unlimited by user's own quota).
-    // Fall back to Lovable AI gateway.
     const geminiKey = process.env.GEMINI_API_KEY;
+    const lovableKey = process.env.LOVABLE_API_KEY;
+
+    type Provider = { name: string; run: () => Promise<string> };
+    const chain: Provider[] = [];
     if (geminiKey) {
-      const contents = data.messages.map((m) => ({
-        role: m.role === "assistant" ? "model" : "user",
-        parts: [{ text: m.content }],
-      }));
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-            contents,
-            generationConfig: { temperature: 0.7, maxOutputTokens: 500 },
-          }),
-        },
-      );
-      if (res.status === 429) throw new Error("Rate limit reached. Try again in a moment.");
-      if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        throw new Error(`Gemini error (${res.status}): ${text.slice(0, 200)}`);
+      chain.push({ name: "gemini-2.0-flash", run: () => callGemini("gemini-2.0-flash", geminiKey, data.messages) });
+      chain.push({ name: "gemini-1.5-flash", run: () => callGemini("gemini-1.5-flash", geminiKey, data.messages) });
+    }
+    if (lovableKey) {
+      chain.push({ name: "lovable:gemini-2.5-flash", run: () => callLovable("google/gemini-2.5-flash", lovableKey, data.messages) });
+      chain.push({ name: "lovable:gemini-2.5-flash-lite", run: () => callLovable("google/gemini-2.5-flash-lite", lovableKey, data.messages) });
+    }
+    if (chain.length === 0) throw new Error("Missing GEMINI_API_KEY or LOVABLE_API_KEY");
+
+    let lastErr: Error | null = null;
+    for (const provider of chain) {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const reply = await provider.run();
+          return { reply: reply || "Sorry, I couldn't process that. Please try again." };
+        } catch (err) {
+          lastErr = err as Error;
+          console.warn(`[nishira-ai] ${provider.name} attempt ${attempt + 1}: ${lastErr.message}`);
+          if (!lastErr.message.startsWith("RETRY_")) break;
+          if (attempt === 0) await sleep(700 + Math.random() * 500);
+        }
       }
-      const json = (await res.json()) as {
-        candidates?: { content?: { parts?: { text?: string }[] } }[];
-      };
-      const reply = json.candidates?.[0]?.content?.parts?.map((p) => p.text).join("").trim();
-      return { reply: reply || "Sorry, I couldn't process that. Please try again." };
     }
-
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("Missing GEMINI_API_KEY or LOVABLE_API_KEY");
-
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Lovable-API-Key": key,
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3.5-flash",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          ...data.messages,
-        ],
-        max_tokens: 500,
-        temperature: 0.7,
-      }),
-    });
-
-    if (res.status === 429) throw new Error("Rate limit reached. Try again in a moment.");
-    if (res.status === 402) throw new Error("AI credits exhausted. Please add credits in Settings → Plans & credits.");
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(`AI gateway error (${res.status}): ${text.slice(0, 200)}`);
-    }
-
-    const json = (await res.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
-    const reply = json.choices?.[0]?.message?.content?.trim();
-    return { reply: reply || "Sorry, I couldn't process that. Please try again." };
+    throw new Error(`AI is busy right now — please try again in a moment. (${lastErr?.message ?? "unknown"})`);
   });
