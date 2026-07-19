@@ -446,11 +446,11 @@ function riskMeter(level: string) {
 function ReportCard({
   item,
   report,
-  onDownload,
+  onExcel,
 }: {
   item: QueueItem;
   report: AnalysisReport;
-  onDownload: () => void;
+  onExcel: () => void;
 }) {
   const p = priceFor(item.ticker, item.basePrice);
   const meter = riskMeter(report.volatility.riskLevel);
@@ -479,11 +479,10 @@ function ReportCard({
           <div className="rounded-md border border-border/60 bg-background/40 px-3 py-1.5 font-display text-lg tabular-nums">
             {fmtMoney(p, item.currency)}
           </div>
-          <Button size="sm" variant="outline" onClick={onDownload}>
-            <Download className="mr-1 h-3.5 w-3.5" /> Download Excel
-          </Button>
+          <DownloadMenu item={item} report={report} onExcel={onExcel} />
         </div>
       </div>
+
 
       <div className="space-y-5 p-5">
         {/* Section 1: Summary */}
