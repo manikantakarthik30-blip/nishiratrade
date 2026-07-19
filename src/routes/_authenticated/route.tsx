@@ -134,8 +134,20 @@ function AuthedLayout() {
 
         {/* Right: balance + avatar */}
         <div className="ml-auto flex items-center gap-3">
-          <div className="hidden rounded-md border border-border/40 bg-muted/30 px-3 py-1.5 text-sm font-semibold text-success tabular-nums sm:block">
-            {formatMoney(inrBalance, "INR")}
+          <div className="hidden flex-col items-end sm:flex">
+            <span className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none">Virtual Balance</span>
+            <div className="mt-0.5 flex items-center gap-2 tabular-nums">
+              <span className="text-sm font-semibold text-success">
+                ₹{inrBalance.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+              </span>
+              <span className="text-xs text-muted-foreground">|</span>
+              <span className="text-sm font-semibold text-primary">
+                ${usdBalance.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+              </span>
+            </div>
+          </div>
+          <div className="rounded-md border border-success/30 bg-success/10 px-2 py-1 text-xs font-semibold text-success tabular-nums sm:hidden">
+            ₹{(inrBalance / 100000).toFixed(1)}L
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger className="rounded-full outline-none ring-primary/50 focus-visible:ring-2">
