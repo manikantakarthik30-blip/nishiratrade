@@ -4,7 +4,7 @@ import {
   Rocket, Wallet, ShoppingCart, LineChart, PenTool, Activity,
   CandlestickChart, HelpCircle, Crosshair, Minus, TrendingUp,
   Square, Type, Ruler, ZoomIn, GitBranch, Sparkles, Brain,
-  Download, Star, ShieldCheck, Trophy, Search, Menu, X,
+  Download, Star, ShieldCheck, Trophy, Search, Menu, X, LifeBuoy,
 } from "lucide-react";
 
 export const Route = createFileRoute("/docs")({
