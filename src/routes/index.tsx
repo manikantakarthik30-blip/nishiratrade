@@ -83,13 +83,47 @@ function Landing() {
           </nav>
 
           <div className="hidden md:flex items-center gap-2 shrink-0">
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/auth" search={{ mode: "login" }}>Login</Link>
-            </Button>
-            <Button asChild size="sm" className="animate-pulse-glow">
-              <Link to="/auth" search={{ mode: "signup" }}>Sign Up</Link>
-            </Button>
+            {user ? (
+              <Link
+                to="/dashboard"
+                className="flex items-center gap-2 rounded-full border border-border/60 bg-background/40 px-2 py-1 pr-3 text-sm hover:border-primary/60"
+              >
+                <Avatar className="h-7 w-7">
+                  {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} />}
+                  <AvatarFallback className="bg-primary/20 text-[10px] font-bold text-primary">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="max-w-[120px] truncate">{displayName}</span>
+              </Link>
+            ) : (
+              <>
+                <Button asChild variant="ghost" size="sm">
+                  <Link to="/auth" search={{ mode: "login" }}>Login</Link>
+                </Button>
+                <Button asChild size="sm" className="animate-pulse-glow">
+                  <Link to="/auth" search={{ mode: "signup" }}>Sign Up</Link>
+                </Button>
+              </>
+            )}
           </div>
+
+          {/* Mobile: avatar (if logged in) + hamburger */}
+          {user && (
+            <Link
+              to="/dashboard"
+              aria-label="Open dashboard"
+              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/50"
+            >
+              <Avatar className="h-8 w-8">
+                {avatarUrl && <AvatarImage src={avatarUrl} alt={displayName} />}
+                <AvatarFallback className="bg-primary/20 text-[10px] font-bold text-primary">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
+          )}
+
 
           {/* Mobile hamburger */}
           <button
