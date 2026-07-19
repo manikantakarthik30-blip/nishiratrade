@@ -54,7 +54,11 @@ function AuthedLayout() {
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
-    queryFn: async () => (await supabase.from("profiles").select("*").maybeSingle()).data,
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return null;
+      return (await supabase.from("profiles").select("*").eq("id", u.user.id).maybeSingle()).data;
+    },
     staleTime: 0,
     refetchInterval: 5000,
     refetchOnWindowFocus: true,
@@ -76,6 +80,8 @@ function AuthedLayout() {
   const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
   const initials = displayName.slice(0, 2).toUpperCase();
   const inrBalance = Number(profile?.balance_inr ?? 0);
+  const usdBalance = Number(profile?.balance_usd ?? 0);
+
 
   return (
     <div className="flex min-h-screen w-full flex-col overflow-x-hidden">
@@ -128,8 +134,20 @@ function AuthedLayout() {
 
         {/* Right: balance + avatar */}
         <div className="ml-auto flex items-center gap-3">
-          <div className="hidden rounded-md border border-border/40 bg-muted/30 px-3 py-1.5 text-sm font-semibold text-success tabular-nums sm:block">
-            {formatMoney(inrBalance, "INR")}
+          <div className="hidden flex-col items-end sm:flex">
+            <span className="text-[10px] uppercase tracking-wide text-muted-foreground leading-none">Virtual Balance</span>
+            <div className="mt-0.5 flex items-center gap-2 tabular-nums">
+              <span className="text-sm font-semibold text-success">
+                ₹{inrBalance.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+              </span>
+              <span className="text-xs text-muted-foreground">|</span>
+              <span className="text-sm font-semibold text-primary">
+                ${usdBalance.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+              </span>
+            </div>
+          </div>
+          <div className="rounded-md border border-success/30 bg-success/10 px-2 py-1 text-xs font-semibold text-success tabular-nums sm:hidden">
+            ₹{(inrBalance / 100000).toFixed(1)}L
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger className="rounded-full outline-none ring-primary/50 focus-visible:ring-2">
@@ -143,8 +161,9 @@ function AuthedLayout() {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel className="truncate">{displayName}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="sm:hidden">
+              <DropdownMenuItem className="flex-col items-start sm:hidden">
                 <span className="text-success">{formatMoney(inrBalance, "INR")}</span>
+                <span className="text-primary">{formatMoney(usdBalance, "USD")}</span>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/profile"><User className="mr-2 h-4 w-4" /> Profile</Link>
