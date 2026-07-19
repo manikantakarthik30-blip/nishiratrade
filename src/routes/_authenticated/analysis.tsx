@@ -663,3 +663,62 @@ function IndicatorCard({
     </div>
   );
 }
+
+function DownloadMenu({
+  item,
+  report,
+  onExcel,
+  compact = false,
+}: {
+  item: QueueItem;
+  report: AnalysisReport;
+  onExcel: () => void;
+  compact?: boolean;
+}) {
+  const meta = {
+    ticker: item.ticker,
+    name: item.name,
+    market: item.market,
+    currency: item.currency,
+    currentPrice: priceFor(item.ticker, item.basePrice),
+  };
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button size="sm" variant="outline" aria-label="Download">
+          <Download className={compact ? "h-3.5 w-3.5" : "mr-1 h-3.5 w-3.5"} />
+          {!compact && <>Download <ChevronDown className="ml-1 h-3 w-3" /></>}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuItem onClick={onExcel}>
+          <FileText className="mr-2 h-4 w-4 text-emerald-500" /> Excel (.xlsx)
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => {
+            try {
+              downloadAnalysisPDF(meta, report);
+              toast.success(`Downloaded ${item.ticker} report (PDF)`);
+            } catch (e) {
+              toast.error(e instanceof Error ? e.message : "PDF export failed");
+            }
+          }}
+        >
+          <FileText className="mr-2 h-4 w-4 text-red-500" /> PDF (.pdf)
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={async () => {
+            try {
+              await downloadAnalysisDocx(meta, report);
+              toast.success(`Downloaded ${item.ticker} report (Word)`);
+            } catch (e) {
+              toast.error(e instanceof Error ? e.message : "Word export failed");
+            }
+          }}
+        >
+          <FileText className="mr-2 h-4 w-4 text-blue-500" /> Word (.docx)
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
