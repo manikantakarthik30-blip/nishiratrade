@@ -40,8 +40,20 @@ const stats = [
 
 function Landing() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { data: user } = useQuery({
+    queryKey: ["landing-auth-user"],
+    queryFn: async () => (await supabase.auth.getUser()).data.user,
+    staleTime: 30_000,
+  });
+  const displayName =
+    (user?.user_metadata?.full_name as string | undefined) ||
+    user?.email?.split("@")[0] ||
+    "trader";
+  const avatarUrl = user?.user_metadata?.avatar_url as string | undefined;
+  const initials = displayName.slice(0, 2).toUpperCase();
 
   const scrollToLearn = () => {
+
     document.getElementById("learn")?.scrollIntoView({ behavior: "smooth" });
     setMenuOpen(false);
   };
