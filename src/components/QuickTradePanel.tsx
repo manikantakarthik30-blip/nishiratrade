@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -10,6 +10,24 @@ import { getStock, formatMoney } from "@/lib/stocks";
 import { useLivePrice } from "@/hooks/useLivePrices";
 import { supabase } from "@/integrations/supabase/client";
 import { placeOrder } from "@/lib/trade.functions";
+
+function validateOrder(
+  quantity: number,
+  price: number,
+  balance: number,
+  action: "BUY" | "SELL",
+  holdings: number,
+): string | null {
+  if (quantity <= 0 || !Number.isInteger(quantity))
+    return "Quantity must be a positive whole number";
+  if (quantity > 10000) return "Maximum order size is 10,000 units";
+  if (price <= 0) return "Invalid price";
+  if (action === "BUY" && price * quantity > balance)
+    return "Insufficient balance for this order";
+  if (action === "SELL" && quantity > holdings)
+    return "You don't have enough shares to sell";
+  return null;
+}
 
 type Props = {
   ticker: string | null;
@@ -80,10 +98,30 @@ function PanelInner({
     stock.market === "IN" ? profile?.balance_inr ?? 0 : profile?.balance_usd ?? 0,
   );
   const heldQty = Number(holding?.qty ?? 0);
-  const canSubmit =
-    qty > 0 && (side === "BUY" ? total <= balance : heldQty >= qty) && !submitting;
+  const validationError = validateOrder(qty, execPrice, balance, side, heldQty);
+  const canSubmit = !validationError && !submitting;
+
+  const orderTimestamps = useRef<number[]>([]);
+  const checkRateLimit = () => {
+    const now = Date.now();
+    const oneMinuteAgo = now - 60_000;
+    orderTimestamps.current = orderTimestamps.current.filter((t) => t > oneMinuteAgo);
+    if (orderTimestamps.current.length >= 10) {
+      toast.error("Slow down!", {
+        description: "Maximum 10 orders per minute. Please wait.",
+      });
+      return false;
+    }
+    orderTimestamps.current.push(now);
+    return true;
+  };
 
   const submit = async () => {
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+    if (!checkRateLimit()) return;
     setSubmitting(true);
     try {
       await doPlaceOrder({
@@ -254,9 +292,9 @@ function PanelInner({
               `Place ${side} Order`
             )}
           </Button>
-          {!canSubmit && !submitting && !success && (
-            <p className="mt-2 text-center text-[11px] text-muted-foreground">
-              {side === "BUY" ? "Insufficient balance" : "Not enough shares"}
+          {validationError && !submitting && !success && (
+            <p className="mt-2 text-center text-[11px] text-destructive">
+              {validationError}
             </p>
           )}
         </div>
