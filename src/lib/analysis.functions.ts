@@ -132,7 +132,7 @@ export const generateStockAnalysis = createServerFn({ method: "POST" })
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               contents: [{ role: "user", parts: [{ text: prompt }] }],
-              generationConfig: { temperature: 0.3, maxOutputTokens: 1800, responseMimeType: "application/json" },
+              generationConfig: { temperature: 0.3, maxOutputTokens: 4096, responseMimeType: "application/json" },
             }),
           },
         );
