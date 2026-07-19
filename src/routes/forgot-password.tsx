@@ -10,6 +10,16 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/forgot-password")({
   ssr: false,
+  head: () => ({
+    meta: [
+      { title: "Forgot password — NISHIRA.TRADE" },
+      { name: "description", content: "Reset your NISHIRA.TRADE password by email." },
+      { property: "og:title", content: "Forgot password — NISHIRA.TRADE" },
+      { property: "og:description", content: "Reset your NISHIRA.TRADE password by email." },
+      { property: "og:url", content: "https://nishiratrade.lovable.app/forgot-password" },
+    ],
+    links: [{ rel: "canonical", href: "https://nishiratrade.lovable.app/forgot-password" }],
+  }),
   component: ForgotPasswordPage,
 });
 

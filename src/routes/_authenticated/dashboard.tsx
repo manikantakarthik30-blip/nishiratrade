@@ -14,6 +14,13 @@ import { downloadPortfolioExcel } from "@/utils/downloadData";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
+  head: () => ({
+    meta: [
+      { title: "Dashboard — NISHIRA.TRADE" },
+      { name: "description", content: "Your paper trading dashboard: balances, portfolio value and quick trade access." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: Dashboard,
 });
 

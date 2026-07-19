@@ -5,3 +5,12 @@ Disallow: /markets
 Disallow: /portfolio
 Disallow: /trade
 Disallow: /leaderboard
+Disallow: /analysis
+Disallow: /profile
+Disallow: /security
+Disallow: /settings
+Disallow: /learn
+Disallow: /reset-password
+Disallow: /auth/callback
+
+Sitemap: https://nishiratrade.lovable.app/sitemap.xml

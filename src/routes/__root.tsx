@@ -75,11 +75,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "NISHIRA.TRADE — Practice the market. Risk nothing. Learn everything." },
+      { title: "NISHIRA.TRADE — Paper Trading, Zero Risk" },
       {
         name: "description",
         content:
-          "NISHIRA.TRADE is a paper trading playground for Indian and US stocks. Practice the market. Risk nothing. Learn everything.",
+          "Practice Indian and US stock trading with a ₹10L + $10k virtual balance, real TradingView charts and an AI tutor. Risk nothing. Learn everything.",
       },
       { property: "og:title", content: "NISHIRA.TRADE — Paper Trading Playground" },
       {
@@ -98,6 +98,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap",
+      },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              name: "NISHIRA.TRADE",
+              url: "https://nishiratrade.lovable.app",
+              logo: "https://nishiratrade.lovable.app/favicon.svg",
+            },
+            {
+              "@type": "WebSite",
+              name: "NISHIRA.TRADE",
+              url: "https://nishiratrade.lovable.app",
+              description:
+                "Paper trading playground for Indian and US stocks with real TradingView charts.",
+            },
+          ],
+        }),
       },
     ],
   }),
