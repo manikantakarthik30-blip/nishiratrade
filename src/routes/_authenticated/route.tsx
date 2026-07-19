@@ -38,8 +38,9 @@ const nav = [
 ] as const;
 
 const mobileNav = nav.filter(
-  (n) => ["Dashboard", "Markets", "Portfolio", "Chart", "Learn"].includes(n.title)
+  (n) => ["Dashboard", "Markets", "Analysis", "Portfolio", "Chart", "Learn"].includes(n.title)
 );
+
 
 function AuthedLayout() {
   const router = useRouter();
