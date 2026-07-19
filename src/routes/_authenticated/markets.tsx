@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, TrendingUp, TrendingDown } from "lucide-react";
+import { Search, X, TrendingUp, TrendingDown, Zap } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { STOCKS, livePrice, livePctChange, formatMoney, getStock } from "@/lib/s
 import { useTicker } from "@/hooks/useLivePrices";
 import { Sparkline } from "@/components/Sparkline";
 import { CandleChart } from "@/components/CandleChart";
+import { QuickTradePanel } from "@/components/QuickTradePanel";
 
 export const Route = createFileRoute("/_authenticated/markets")({
   component: MarketsPage,
@@ -24,6 +25,7 @@ function MarketsPage() {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [selected, setSelected] = useState<string | null>(null);
+  const [quickTicker, setQuickTicker] = useState<string | null>(null);
   const [limit, setLimit] = useState(INITIAL_LIMIT);
   const [booted, setBooted] = useState(false);
 
@@ -112,6 +114,9 @@ function MarketsPage() {
                 </div>
               </div>
               <div className="mt-3 flex gap-2">
+                <Button size="sm" variant="outline" onClick={() => setQuickTicker(s.ticker)} title="Quick Trade">
+                  <Zap className="h-4 w-4" />
+                </Button>
                 <Button asChild size="sm" className="flex-1">
                   <Link to="/trade/$ticker" params={{ ticker: s.ticker }}>Trade</Link>
                 </Button>
@@ -134,6 +139,8 @@ function MarketsPage() {
       <AnimatePresence>
         {selected && <StockPanel ticker={selected} onClose={() => setSelected(null)} />}
       </AnimatePresence>
+
+      <QuickTradePanel ticker={quickTicker} onClose={() => setQuickTicker(null)} />
     </div>
   );
 }
