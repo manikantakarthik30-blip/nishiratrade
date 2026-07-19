@@ -164,7 +164,7 @@ function Landing() {
               <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-primary transition-transform group-hover:scale-110">
                 <f.icon className="h-5 w-5" />
               </div>
-              <h3 className="mt-4 text-lg font-semibold">{f.title}</h3>
+              <h2 className="mt-4 text-lg font-semibold">{f.title}</h2>
               <p className="mt-2 text-sm text-muted-foreground">{f.desc}</p>
             </motion.div>
           ))}
