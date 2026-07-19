@@ -130,7 +130,7 @@ export function NishiraAI() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 40, scale: 0.95 }}
             transition={{ type: "spring", damping: 26, stiffness: 260 }}
-            className="fixed z-[9999] flex flex-col overflow-hidden border border-[#2a2a4e] bg-[#0d0d1a] shadow-[0_0_40px_rgba(124,58,237,0.3)] max-md:inset-0 max-md:rounded-t-2xl md:bottom-6 md:right-6 md:h-[520px] md:w-[380px] md:rounded-2xl"
+            className={`fixed z-[9999] flex flex-col overflow-hidden border border-[#2a2a4e] bg-[#0d0d1a] shadow-[0_0_40px_rgba(124,58,237,0.3)] md:h-[520px] md:w-[380px] ${panelAnchor}`}
           >
             {/* Header */}
             <div className="flex h-14 shrink-0 items-center justify-between border-b border-[#1a1a2e] px-4">
