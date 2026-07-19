@@ -25,12 +25,36 @@ const INITIAL_LIMIT = 10;
 
 function MarketsPage() {
   useTicker();
+  const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [selected, setSelected] = useState<string | null>(null);
   const [quickTicker, setQuickTicker] = useState<string | null>(null);
   const [limit, setLimit] = useState(INITIAL_LIMIT);
   const [booted, setBooted] = useState(false);
+
+  const { data: watchlist = [] } = useQuery({
+    queryKey: ["watchlist"],
+    queryFn: async () => {
+      const { data } = await supabase.from("watchlist").select("*");
+      return data ?? [];
+    },
+  });
+
+  const toggleWatch = async (ticker: string, market: "IN" | "US") => {
+    const existing = watchlist.find((w) => w.ticker === ticker);
+    if (existing) {
+      await supabase.from("watchlist").delete().eq("id", existing.id);
+      toast.success(`${ticker} removed from watchlist`);
+    } else {
+      const u = (await supabase.auth.getUser()).data.user;
+      if (!u) return;
+      const { error } = await supabase.from("watchlist").insert({ ticker, market, user_id: u.id });
+      if (error) toast.error(error.message);
+      else toast.success(`${ticker} added to watchlist`);
+    }
+    qc.invalidateQueries({ queryKey: ["watchlist"] });
+  };
 
   useEffect(() => {
     // brief skeleton so the UI paints instantly
