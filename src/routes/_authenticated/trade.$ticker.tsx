@@ -33,11 +33,14 @@ function TradePage() {
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => (await supabase.from("profiles").select("*").maybeSingle()).data,
+    staleTime: 0,
+    refetchInterval: 5000,
   });
   const { data: holding } = useQuery({
     queryKey: ["holding", ticker],
     queryFn: async () =>
       (await supabase.from("holdings").select("*").eq("ticker", ticker.toUpperCase()).maybeSingle()).data,
+    staleTime: 0,
   });
 
   const live = useLivePrice(stock?.ticker ?? "");
