@@ -55,6 +55,10 @@ function AuthedLayout() {
   const { data: profile } = useQuery({
     queryKey: ["profile"],
     queryFn: async () => (await supabase.from("profiles").select("*").maybeSingle()).data,
+    staleTime: 0,
+    refetchInterval: 5000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
   });
 
   const signOut = async () => {
