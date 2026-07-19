@@ -161,8 +161,9 @@ function AuthedLayout() {
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel className="truncate">{displayName}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="sm:hidden">
+              <DropdownMenuItem className="flex-col items-start sm:hidden">
                 <span className="text-success">{formatMoney(inrBalance, "INR")}</span>
+                <span className="text-primary">{formatMoney(usdBalance, "USD")}</span>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/profile"><User className="mr-2 h-4 w-4" /> Profile</Link>
