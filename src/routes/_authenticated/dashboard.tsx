@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { TrendingUp, TrendingDown, Star, StarOff, Wallet, IndianRupee, DollarSign, Zap } from "lucide-react";
+import { TrendingUp, TrendingDown, Star, StarOff, Wallet, IndianRupee, DollarSign, Zap, Download } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,7 @@ import { useTicker } from "@/hooks/useLivePrices";
 import { STOCKS, getStock, livePrice, livePctChange, formatMoney } from "@/lib/stocks";
 import { PortfolioAreaChart } from "@/components/PortfolioAreaChart";
 import { QuickTradePanel } from "@/components/QuickTradePanel";
+import { downloadPortfolioExcel } from "@/utils/downloadData";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -76,11 +77,22 @@ function Dashboard() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-4 md:space-y-6">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="font-display text-xl font-bold md:text-3xl">
-          Welcome, <span className="text-primary">{profile?.username ?? "trader"}</span>
-        </h1>
-        <p className="mt-1 text-xs text-muted-foreground md:text-sm">Welcome to NISHIRA.TRADE — your portfolio at a glance.</p>
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-xl font-bold md:text-3xl">
+            Welcome, <span className="text-primary">{profile?.username ?? "trader"}</span>
+          </h1>
+          <p className="mt-1 text-xs text-muted-foreground md:text-sm">Welcome to NISHIRA.TRADE — your portfolio at a glance.</p>
+        </div>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => downloadPortfolioExcel(holdings)}
+          disabled={holdings.length === 0}
+          className="border-success/40 text-success hover:bg-success/10"
+        >
+          <Download className="mr-1.5 h-3.5 w-3.5" /> Export
+        </Button>
       </motion.div>
 
       {/* Balance cards — 2x2 on mobile, 4 on desktop */}
