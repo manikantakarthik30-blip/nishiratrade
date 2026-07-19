@@ -39,6 +39,7 @@ const sections: Section[] = [
   { id: "leaderboard", title: "Leaderboard", icon: Trophy, group: "Account" },
   { id: "security", title: "Security & 2FA", icon: ShieldCheck, group: "Account" },
 
+  { id: "troubleshooting", title: "Troubleshooting", icon: LifeBuoy, group: "Help" },
   { id: "faqs", title: "FAQs", icon: HelpCircle, group: "Help" },
 ];
 
