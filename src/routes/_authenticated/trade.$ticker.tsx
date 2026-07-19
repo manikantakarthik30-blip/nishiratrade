@@ -12,7 +12,7 @@ import { useLivePrice } from "@/hooks/useLivePrices";
 import { supabase } from "@/integrations/supabase/client";
 import { placeOrder } from "@/lib/trade.functions";
 import { TvWidget } from "@/components/TvWidget";
-import { downloadStockCSV } from "@/utils/downloadData";
+import { StockDownloadDialog } from "@/components/StockDownloadDialog";
 
 export const Route = createFileRoute("/_authenticated/trade/$ticker")({
   component: TradePage,
