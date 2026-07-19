@@ -7,6 +7,17 @@ import {
   Download, Star, ShieldCheck, Trophy, Search, Menu, X, LifeBuoy,
 } from "lucide-react";
 
+const FAQS = [
+  { q: "Is this real money?", a: "No — 100% virtual. Nothing on NISHIRA.TRADE touches real cash." },
+  { q: "Are the prices real?", a: "US stocks stream live via Finnhub. Indian stocks use live data from a broker feed with a realistic simulation fallback." },
+  { q: "Can I lose real money?", a: "Absolutely not. No funding, no withdrawals, no real brokerage." },
+  { q: "How is brokerage calculated?", a: "A flat 0.1% of order value is simulated on every trade to mirror real-world costs." },
+  { q: "Can I reset my balance?", a: "Not currently — keeping the number honest is part of the practice." },
+  { q: "How is my data protected?", a: "Row-level security on the database, TOTP 2FA, and encrypted sessions. Only you can see your holdings." },
+  { q: "Does NISHIRA.AI give buy / sell tips?", a: "Never. It's an educational tutor — it explains concepts, patterns, and strategy, not predictions." },
+  { q: "Which browsers are supported?", a: "Latest Chrome, Edge, Safari, Firefox. Mobile web works fully; use Add to Home Screen for an app-like feel." },
+];
+
 export const Route = createFileRoute("/docs")({
   head: () => ({
     meta: [
@@ -14,6 +25,22 @@ export const Route = createFileRoute("/docs")({
       { name: "description", content: "Master NISHIRA.TRADE: virtual balance, TradingView charts, NISHIRA.AI, Stock Analysis Lab, downloads, watchlist, 2FA and more." },
       { property: "og:title", content: "Documentation — NISHIRA.TRADE" },
       { property: "og:description", content: "The complete guide to paper trading with real market data." },
+      { property: "og:url", content: "https://nishiratrade.lovable.app/docs" },
+    ],
+    links: [{ rel: "canonical", href: "https://nishiratrade.lovable.app/docs" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: FAQS.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }),
+      },
     ],
   }),
   component: DocsPage,
@@ -553,16 +580,7 @@ function DocsPage() {
           <section id="faqs" className="scroll-mt-24 pb-24">
             <h2 className="font-display text-2xl font-bold md:text-3xl">15. FAQs</h2>
             <div className="mt-4 space-y-3 text-sm">
-              {[
-                { q: "Is this real money?", a: "No — 100% virtual. Nothing on NISHIRA.TRADE touches real cash." },
-                { q: "Are the prices real?", a: "US stocks stream live via Finnhub. Indian stocks use live data from a broker feed with a realistic simulation fallback." },
-                { q: "Can I lose real money?", a: "Absolutely not. No funding, no withdrawals, no real brokerage." },
-                { q: "How is brokerage calculated?", a: "A flat 0.1% of order value is simulated on every trade to mirror real-world costs." },
-                { q: "Can I reset my balance?", a: "Not currently — keeping the number honest is part of the practice." },
-                { q: "How is my data protected?", a: "Row-level security on the database, TOTP 2FA, and encrypted sessions. Only you can see your holdings." },
-                { q: "Does NISHIRA.AI give buy / sell tips?", a: "Never. It's an educational tutor — it explains concepts, patterns, and strategy, not predictions." },
-                { q: "Which browsers are supported?", a: "Latest Chrome, Edge, Safari, Firefox. Mobile web works fully; use Add to Home Screen for an app-like feel." },
-              ].map((f) => (
+              {FAQS.map((f) => (
                 <details key={f.q} className="group rounded-xl border border-white/10 bg-white/[0.03] p-4 transition hover:border-primary/30">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">
                     <span>Q: {f.q}</span>

@@ -186,6 +186,7 @@ function ChartPage() {
 
   return (
     <div className="flex h-screen w-full flex-col bg-[#0f0f0f] text-[#d1d4dc]">
+      <h1 className="sr-only">Real-time Stock Market Chart</h1>
       {/* Top bar */}
       <header className="flex h-10 shrink-0 items-center gap-2 border-b border-[#2a2a2a] bg-[#1a1a1a] px-2 sm:px-3">
         <Link

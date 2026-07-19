@@ -13,6 +13,13 @@ import { QuickTradePanel } from "@/components/QuickTradePanel";
 import { downloadPortfolioExcel, downloadTradeHistory } from "@/utils/downloadData";
 
 export const Route = createFileRoute("/_authenticated/portfolio")({
+  head: () => ({
+    meta: [
+      { title: "Portfolio — NISHIRA.TRADE" },
+      { name: "description", content: "Your holdings, allocation and trade history in NISHIRA.TRADE." },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: PortfolioPage,
 });
 

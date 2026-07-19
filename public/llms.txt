@@ -1,0 +1,12 @@
+# NISHIRA.TRADE
+
+> Paper trading playground for Indian (NSE/BSE) and US (NYSE/NASDAQ) stocks. Practice with a ₹10,00,000 + $10,000 virtual balance, real TradingView charts, and an AI tutor. Zero real money involved.
+
+NISHIRA.TRADE lets aspiring traders learn the market risk-free. It combines live market data, a full TradingView chart interface, a curated learning academy, and NISHIRA.AI — an education-only assistant that explains concepts, patterns, and strategy (never buy/sell tips).
+
+## Pages
+
+- [Home](/): Product overview, features, and how paper trading works.
+- [Documentation](/docs): Complete guide — virtual balance, charts, indicators, candlesticks, AI assistant, Stock Analysis Lab, downloads, watchlist, security and FAQs.
+- [Live Chart](/chart): Full-screen TradingView chart for NSE, BSE, NYSE and NASDAQ symbols.
+- [Sign in](/auth): Log in or create a NISHIRA.TRADE account.

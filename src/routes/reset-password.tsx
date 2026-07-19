@@ -12,6 +12,17 @@ import { PasswordStrength, scorePassword } from "@/components/PasswordStrength";
 
 export const Route = createFileRoute("/reset-password")({
   ssr: false,
+  head: () => ({
+    meta: [
+      { title: "Reset password — NISHIRA.TRADE" },
+      { name: "description", content: "Set a new password for your NISHIRA.TRADE account." },
+      { property: "og:title", content: "Reset password — NISHIRA.TRADE" },
+      { property: "og:description", content: "Set a new password for your NISHIRA.TRADE account." },
+      { property: "og:url", content: "https://nishiratrade.lovable.app/reset-password" },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "https://nishiratrade.lovable.app/reset-password" }],
+  }),
   component: ResetPasswordPage,
 });
 

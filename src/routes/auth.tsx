@@ -21,6 +21,16 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
+  head: () => ({
+    meta: [
+      { title: "Sign in — NISHIRA.TRADE" },
+      { name: "description", content: "Sign in or create your NISHIRA.TRADE account to start paper trading with a ₹10L + $10k virtual balance." },
+      { property: "og:title", content: "Sign in — NISHIRA.TRADE" },
+      { property: "og:description", content: "Log in to your paper trading playground." },
+      { property: "og:url", content: "https://nishiratrade.lovable.app/auth" },
+    ],
+    links: [{ rel: "canonical", href: "https://nishiratrade.lovable.app/auth" }],
+  }),
   beforeLoad: async () => {
     if (typeof window === "undefined") return;
     const { data } = await supabase.auth.getSession();
