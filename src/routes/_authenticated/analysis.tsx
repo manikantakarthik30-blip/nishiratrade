@@ -2,13 +2,20 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brain, Download, Loader2, Search, Sparkles, TrendingUp, X } from "lucide-react";
+import { Brain, ChevronDown, Download, FileText, Loader2, Search, Sparkles, TrendingUp, X } from "lucide-react";
 import * as XLSX from "xlsx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { STOCKS_BY_TICKER, livePrice, livePctChange } from "@/lib/stocks";
 import { useTicker } from "@/hooks/useLivePrices";
 import { generateStockAnalysis, type AnalysisReport } from "@/lib/analysis.functions";
+import { downloadAnalysisPDF, downloadAnalysisDocx } from "@/utils/downloadData";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/analysis")({
@@ -363,14 +370,7 @@ function AnalysisPage() {
                       )}
                     </Button>
                     {hasReport && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => downloadReport(item, reports[item.ticker])}
-                        aria-label="Download"
-                      >
-                        <Download className="h-3.5 w-3.5" />
-                      </Button>
+                      <DownloadMenu item={item} report={reports[item.ticker]} onExcel={() => downloadReport(item, reports[item.ticker])} compact />
                     )}
                   </div>
                 </div>
@@ -390,7 +390,7 @@ function AnalysisPage() {
             <div key={item.ticker}>
               {isLoading && <ReportSkeleton ticker={item.ticker} />}
               {report && !isLoading && (
-                <ReportCard item={item} report={report} onDownload={() => downloadReport(item, report)} />
+                <ReportCard item={item} report={report} onExcel={() => downloadReport(item, report)} />
               )}
             </div>
           );
@@ -446,11 +446,11 @@ function riskMeter(level: string) {
 function ReportCard({
   item,
   report,
-  onDownload,
+  onExcel,
 }: {
   item: QueueItem;
   report: AnalysisReport;
-  onDownload: () => void;
+  onExcel: () => void;
 }) {
   const p = priceFor(item.ticker, item.basePrice);
   const meter = riskMeter(report.volatility.riskLevel);
@@ -479,11 +479,10 @@ function ReportCard({
           <div className="rounded-md border border-border/60 bg-background/40 px-3 py-1.5 font-display text-lg tabular-nums">
             {fmtMoney(p, item.currency)}
           </div>
-          <Button size="sm" variant="outline" onClick={onDownload}>
-            <Download className="mr-1 h-3.5 w-3.5" /> Download Excel
-          </Button>
+          <DownloadMenu item={item} report={report} onExcel={onExcel} />
         </div>
       </div>
+
 
       <div className="space-y-5 p-5">
         {/* Section 1: Summary */}
@@ -662,5 +661,64 @@ function IndicatorCard({
       </div>
       <p className="mt-2 text-xs text-muted-foreground">{text}</p>
     </div>
+  );
+}
+
+function DownloadMenu({
+  item,
+  report,
+  onExcel,
+  compact = false,
+}: {
+  item: QueueItem;
+  report: AnalysisReport;
+  onExcel: () => void;
+  compact?: boolean;
+}) {
+  const meta = {
+    ticker: item.ticker,
+    name: item.name,
+    market: item.market,
+    currency: item.currency,
+    currentPrice: priceFor(item.ticker, item.basePrice),
+  };
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button size="sm" variant="outline" aria-label="Download">
+          <Download className={compact ? "h-3.5 w-3.5" : "mr-1 h-3.5 w-3.5"} />
+          {!compact && <>Download <ChevronDown className="ml-1 h-3 w-3" /></>}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuItem onClick={onExcel}>
+          <FileText className="mr-2 h-4 w-4 text-emerald-500" /> Excel (.xlsx)
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => {
+            try {
+              downloadAnalysisPDF(meta, report);
+              toast.success(`Downloaded ${item.ticker} report (PDF)`);
+            } catch (e) {
+              toast.error(e instanceof Error ? e.message : "PDF export failed");
+            }
+          }}
+        >
+          <FileText className="mr-2 h-4 w-4 text-red-500" /> PDF (.pdf)
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={async () => {
+            try {
+              await downloadAnalysisDocx(meta, report);
+              toast.success(`Downloaded ${item.ticker} report (Word)`);
+            } catch (e) {
+              toast.error(e instanceof Error ? e.message : "Word export failed");
+            }
+          }}
+        >
+          <FileText className="mr-2 h-4 w-4 text-blue-500" /> Word (.docx)
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

@@ -12,7 +12,7 @@ import { useLivePrice } from "@/hooks/useLivePrices";
 import { supabase } from "@/integrations/supabase/client";
 import { placeOrder } from "@/lib/trade.functions";
 import { TvWidget } from "@/components/TvWidget";
-import { downloadStockCSV } from "@/utils/downloadData";
+import { StockDownloadDialog } from "@/components/StockDownloadDialog";
 
 export const Route = createFileRoute("/_authenticated/trade/$ticker")({
   component: TradePage,
@@ -29,6 +29,7 @@ function TradePage() {
   const [orderType, setOrderType] = useState<"MARKET" | "LIMIT">("MARKET");
   const [limitPrice, setLimitPrice] = useState<number>(0);
   const [submitting, setSubmitting] = useState(false);
+  const [downloadOpen, setDownloadOpen] = useState(false);
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
@@ -97,10 +98,7 @@ function TradePage() {
   };
 
   return (
-    <div
-      className="flex flex-col md:flex-row md:h-[calc(100vh-60px)]"
-      style={{ minHeight: "calc(100vh - 60px)" }}
-    >
+    <div className="flex flex-col md:h-[calc(100vh-60px)] md:flex-row">
       {/* Left: chart 70% */}
       <div className="flex flex-col md:w-[70%]">
         <div className="flex h-10 shrink-0 items-center justify-between border-b border-border/40 px-3 text-sm">
@@ -109,7 +107,7 @@ function TradePage() {
               <Link to="/markets"><ArrowLeft className="mr-1 h-3.5 w-3.5" /> Back</Link>
             </Button>
             <span className="truncate font-semibold">{stock.name}</span>
-            <span className="text-xs text-muted-foreground">({stock.ticker})</span>
+            <span className="hidden text-xs text-muted-foreground sm:inline">({stock.ticker})</span>
           </div>
           <div className="flex shrink-0 items-center gap-2 text-right">
             <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-success" />
@@ -118,15 +116,15 @@ function TradePage() {
               {pct >= 0 ? "▲" : "▼"} {pct.toFixed(2)}%
             </span>
             <button
-              onClick={() => downloadStockCSV(stock.ticker, buildPriceHistory(stock.ticker, price))}
+              onClick={() => setDownloadOpen(true)}
               className="ml-2 flex items-center gap-1 rounded border border-border/60 px-2 py-1 text-[11px] text-muted-foreground transition hover:text-foreground"
-              title="Download price history CSV"
+              title="Download full price history"
             >
-              <Download className="h-3 w-3" /> Download Data
+              <Download className="h-3 w-3" /> <span className="hidden sm:inline">Download Data</span>
             </button>
           </div>
         </div>
-        <div className="h-[300px] w-full md:h-auto md:flex-1">
+        <div className="h-[280px] w-full md:h-auto md:flex-1">
           <TvWidget symbol={stock.ticker} height="100%" />
         </div>
       </div>
@@ -136,7 +134,8 @@ function TradePage() {
         className="flex flex-col border-t md:w-[30%] md:border-l md:border-t-0"
         style={{ background: "#0d0d1a", borderColor: "#1a1a2e" }}
       >
-        <div className="flex-1 space-y-4 overflow-y-auto p-5 pb-4">
+        {/* Content — leave room on mobile for fixed action bar + bottom nav */}
+        <div className="flex-1 space-y-4 overflow-y-auto p-5 pb-40 md:pb-4">
           <div className="grid grid-cols-2 rounded-lg border border-border/50 p-1">
             <button
               onClick={() => setSide("BUY")}
@@ -205,7 +204,11 @@ function TradePage() {
           </div>
         </div>
 
-        <div className="sticky bottom-0 border-t border-border/40 bg-[#0d0d1a] p-4">
+        {/* Action bar — fixed above mobile bottom nav, static on desktop */}
+        <div
+          className="fixed inset-x-0 bottom-14 z-40 border-t p-3 md:static md:bottom-0 md:p-4"
+          style={{ background: "#0d0d1a", borderColor: "#1a1a2e" }}
+        >
           <Button
             onClick={handleSubmit}
             disabled={!canSubmit || submitting}
@@ -216,31 +219,20 @@ function TradePage() {
                 : "bg-destructive text-destructive-foreground shadow-[0_0_24px_rgba(239,68,68,0.45)] hover:bg-destructive/90"
             }`}
           >
-            {submitting ? "Placing..." : `Place ${side} Order`}
+            {submitting
+              ? "Placing..."
+              : `${side} ${qty} ${stock.ticker} · ${formatMoney(total, stock.currency)}`}
           </Button>
         </div>
       </div>
+
+      <StockDownloadDialog
+        open={downloadOpen}
+        onOpenChange={setDownloadOpen}
+        symbol={stock.ticker}
+        companyName={stock.name}
+        endPrice={price}
+      />
     </div>
   );
-}
-
-// Deterministic 90-day daily price history ending at the current live price.
-function buildPriceHistory(ticker: string, endPrice: number) {
-  let seed = 0;
-  for (let i = 0; i < ticker.length; i++) seed = (seed * 31 + ticker.charCodeAt(i)) >>> 0;
-  const rand = () => {
-    seed = (seed * 1664525 + 1013904223) >>> 0;
-    return seed / 0xffffffff;
-  };
-  const out: { time: string; price: number }[] = [];
-  let p = endPrice * (0.85 + rand() * 0.15);
-  const now = Date.now();
-  for (let i = 89; i >= 0; i--) {
-    p = p * (1 + (rand() - 0.5) * 0.03);
-    const d = new Date(now - i * 86400_000);
-    out.push({ time: d.toISOString().split("T")[0], price: +p.toFixed(2) });
-  }
-  // pin the last point to the live price
-  out[out.length - 1].price = +endPrice.toFixed(2);
-  return out;
 }
