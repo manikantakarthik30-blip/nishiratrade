@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, TrendingUp, TrendingDown, Zap } from "lucide-react";
+import { Search, X, TrendingUp, TrendingDown, Zap, Star } from "lucide-react";
+import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +13,7 @@ import { useTicker } from "@/hooks/useLivePrices";
 import { Sparkline } from "@/components/Sparkline";
 import { CandleChart } from "@/components/CandleChart";
 import { QuickTradePanel } from "@/components/QuickTradePanel";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/markets")({
   component: MarketsPage,
