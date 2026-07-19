@@ -29,6 +29,7 @@ function TradePage() {
   const [orderType, setOrderType] = useState<"MARKET" | "LIMIT">("MARKET");
   const [limitPrice, setLimitPrice] = useState<number>(0);
   const [submitting, setSubmitting] = useState(false);
+  const [downloadOpen, setDownloadOpen] = useState(false);
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
