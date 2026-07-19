@@ -40,11 +40,17 @@ export function NishiraAI() {
   const [open, setOpen] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [hasUnread, setHasUnread] = useState(true);
+  const [corner, setCorner] = useState<Corner>("bottom-right");
   const [messages, setMessages] = useState<Msg[]>([WELCOME]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const ask = useServerFn(askNishiraAI);
+
+  useEffect(() => {
+    setCorner(getSavedCorner());
+  }, []);
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
