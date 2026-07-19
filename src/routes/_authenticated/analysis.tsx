@@ -370,14 +370,7 @@ function AnalysisPage() {
                       )}
                     </Button>
                     {hasReport && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => downloadReport(item, reports[item.ticker])}
-                        aria-label="Download"
-                      >
-                        <Download className="h-3.5 w-3.5" />
-                      </Button>
+                      <DownloadMenu item={item} report={reports[item.ticker]} onExcel={() => downloadReport(item, reports[item.ticker])} compact />
                     )}
                   </div>
                 </div>
