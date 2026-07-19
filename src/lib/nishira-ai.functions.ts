@@ -74,6 +74,7 @@ async function callLovable(model: string, key: string, messages: z.infer<typeof 
 }
 
 export const askNishiraAI = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) => InputSchema.parse(raw))
   .handler(async ({ data }) => {
     const geminiKey = process.env.GEMINI_API_KEY;
