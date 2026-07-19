@@ -100,32 +100,26 @@ export function NishiraAI() {
 
   const showChips = messages.length === 1;
 
+  const isBottom = corner.startsWith("bottom");
+  const isRight = corner.endsWith("right");
+  const panelAnchor = `max-md:inset-0 max-md:rounded-t-2xl md:rounded-2xl ${
+    isBottom ? "md:bottom-6" : "md:top-24"
+  } ${isRight ? "md:right-6" : "md:left-6"}`;
+
   return (
     <>
       {/* Floating trigger */}
-      <AnimatePresence>
-        {(!open || minimized) && (
-          <motion.button
-            key="fab"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => { setOpen(true); setMinimized(false); }}
-            aria-label="Open NISHIRA.AI"
-            title="NISHIRA.AI — Trading Assistant"
-            className="group fixed right-6 bottom-20 z-[9999] flex h-14 w-14 items-center justify-center rounded-full text-white shadow-[0_10px_40px_rgba(124,58,237,0.5)] md:bottom-6"
-            style={{ background: "linear-gradient(135deg, #7c3aed 0%, #00d4ff 100%)" }}
-          >
-            <span className="absolute inset-0 animate-ping rounded-full opacity-30" style={{ background: "linear-gradient(135deg, #7c3aed, #00d4ff)" }} />
-            <Rocket className="relative z-10 h-6 w-6" />
-            {hasUnread && (
-              <span className="absolute right-1 top-1 h-3 w-3 rounded-full border-2 border-[#0d0d1a] bg-red-500" />
-            )}
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {(!open || minimized) && (
+        <DraggableAIButton
+          onClick={() => {
+            setOpen(true);
+            setMinimized(false);
+          }}
+          hasUnread={hasUnread}
+          onCornerChange={setCorner}
+        />
+      )}
+
 
       {/* Panel */}
       <AnimatePresence>
