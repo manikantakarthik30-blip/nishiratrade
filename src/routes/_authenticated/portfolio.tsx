@@ -1,11 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { getStock, livePrice, formatMoney } from "@/lib/stocks";
 import { useTicker } from "@/hooks/useLivePrices";
 import { PortfolioAreaChart } from "@/components/PortfolioAreaChart";
+import { QuickTradePanel } from "@/components/QuickTradePanel";
 
 export const Route = createFileRoute("/_authenticated/portfolio")({
   component: PortfolioPage,
@@ -15,6 +18,7 @@ const COLORS = ["#00d4ff", "#7c3aed", "#22d3ee", "#a855f7", "#38bdf8", "#c084fc"
 
 function PortfolioPage() {
   useTicker();
+  const [quick, setQuick] = useState<{ ticker: string; side: "BUY" | "SELL" } | null>(null);
 
   const { data: holdings = [] } = useQuery({
     queryKey: ["holdings"],
@@ -93,7 +97,8 @@ function PortfolioPage() {
                   <th>Avg Buy</th>
                   <th>Current</th>
                   <th>P&L</th>
-                  <th className="text-right">P&L %</th>
+                  <th>P&L %</th>
+                  <th className="text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -108,8 +113,18 @@ function PortfolioPage() {
                     <td className={e.pl >= 0 ? "text-success" : "text-destructive"}>
                       {formatMoney(e.pl, e.stock?.currency ?? "USD")}
                     </td>
-                    <td className={`text-right ${e.plPct >= 0 ? "text-success" : "text-destructive"}`}>
+                    <td className={e.plPct >= 0 ? "text-success" : "text-destructive"}>
                       {e.plPct.toFixed(2)}%
+                    </td>
+                    <td className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button size="sm" variant="outline" onClick={() => setQuick({ ticker: e.ticker, side: "BUY" })}>
+                          Buy More
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => setQuick({ ticker: e.ticker, side: "SELL" })}>
+                          Sell
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -136,6 +151,12 @@ function PortfolioPage() {
         <AllocationCard title="Indian Allocation" data={pieDataInr} />
         <AllocationCard title="US Allocation" data={pieDataUsd} />
       </div>
+
+      <QuickTradePanel
+        ticker={quick?.ticker ?? null}
+        defaultSide={quick?.side ?? "BUY"}
+        onClose={() => setQuick(null)}
+      />
     </div>
   );
 }

@@ -1,13 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { TrendingUp, TrendingDown, Star, StarOff, Wallet, IndianRupee, DollarSign } from "lucide-react";
+import { TrendingUp, TrendingDown, Star, StarOff, Wallet, IndianRupee, DollarSign, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useTicker } from "@/hooks/useLivePrices";
 import { STOCKS, getStock, livePrice, livePctChange, formatMoney } from "@/lib/stocks";
 import { PortfolioAreaChart } from "@/components/PortfolioAreaChart";
+import { QuickTradePanel } from "@/components/QuickTradePanel";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -16,6 +18,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 function Dashboard() {
   const qc = useQueryClient();
+  const [quickTicker, setQuickTicker] = useState<string | null>(null);
+  const [quickSide, setQuickSide] = useState<"BUY" | "SELL">("BUY");
   useTicker();
 
   const { data: profile } = useQuery({
@@ -151,6 +155,9 @@ function Dashboard() {
                         {pct >= 0 ? "▲" : "▼"} {pct.toFixed(2)}%
                       </div>
                     </div>
+                    <Button size="sm" variant="outline" onClick={() => { setQuickSide("BUY"); setQuickTicker(s.ticker); }}>
+                      <Zap className="mr-1 h-3.5 w-3.5" /> Quick
+                    </Button>
                     <Button asChild size="sm">
                       <Link to="/trade/$ticker" params={{ ticker: s.ticker }}>Trade</Link>
                     </Button>
@@ -240,6 +247,8 @@ function Dashboard() {
           })}
         </div>
       </Card>
+
+      <QuickTradePanel ticker={quickTicker} defaultSide={quickSide} onClose={() => setQuickTicker(null)} />
     </div>
   );
 }
