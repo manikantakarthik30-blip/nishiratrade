@@ -45,6 +45,21 @@ function extractTicker(symbol: string): string {
   return idx >= 0 ? symbol.slice(idx + 1) : symbol;
 }
 
+/** TradingView symbol names that differ from our tradable tickers */
+const TRADE_ALIASES: Record<string, string> = {
+  HDFCBANK: "HDFC",
+  ICICIBANK: "ICICI",
+  BAJFINANCE: "BAJAJ",
+  LTIM: "LT",
+};
+
+/** Returns a tradable ticker for a TradingView symbol, or null (e.g. indices) */
+function toTradableTicker(symbol: string): string | null {
+  const raw = extractTicker(symbol).toUpperCase();
+  const mapped = TRADE_ALIASES[raw] ?? raw;
+  return getStock(mapped) ? mapped : null;
+}
+
 const PANEL = {
   Indices: [
     { label: "NIFTY 50", symbol: "NSE:NIFTY" },
