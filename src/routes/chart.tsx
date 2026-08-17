@@ -234,13 +234,23 @@ function ChartPage() {
           </button>
         </form>
 
-        <Link
-          to="/trade/$ticker"
-          params={{ ticker: tradeTicker }}
-          className="hidden h-7 items-center gap-1 rounded bg-[#26a69a] px-3 text-xs font-medium text-white hover:opacity-90 sm:inline-flex"
-        >
-          Trade This Stock <span aria-hidden>→</span>
-        </Link>
+        {tradeTicker ? (
+          <Link
+            to="/trade/$ticker"
+            params={{ ticker: tradeTicker }}
+            className="hidden h-7 items-center gap-1 rounded bg-[#26a69a] px-3 text-xs font-medium text-white hover:opacity-90 sm:inline-flex"
+          >
+            Trade This Stock <span aria-hidden>→</span>
+          </Link>
+        ) : (
+          <Link
+            to="/markets"
+            className="hidden h-7 items-center gap-1 rounded border border-[#2a2a2a] px-3 text-xs font-medium text-[#d1d4dc] hover:bg-[#2a2a2a] sm:inline-flex"
+            title="Indices aren't tradable — browse tradable stocks"
+          >
+            Browse Tradable Stocks <span aria-hidden>→</span>
+          </Link>
+        )}
         <button
           onClick={() => setPanelOpen((v) => !v)}
           className="ml-1 inline-flex h-7 items-center gap-1 rounded border border-[#2a2a2a] px-2 text-xs md:hidden"
