@@ -198,7 +198,7 @@ function ChartPage() {
     setSymbol(query);
   };
 
-  const tradeTicker = extractTicker(symbol);
+  const tradeTicker = toTradableTicker(symbol);
 
   return (
     <div className="flex h-screen w-full flex-col bg-[#0f0f0f] text-[#d1d4dc]">
