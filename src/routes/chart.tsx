@@ -4,6 +4,7 @@ import { z } from "zod";
 import { fallback, zodValidator } from "@tanstack/zod-adapter";
 import { ArrowLeft, Rocket, Menu, X, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { getStock } from "@/lib/stocks";
 
 const SYMBOL_MAP: Record<string, string> = {
   NIFTY: "NSE:NIFTY",
@@ -43,6 +44,21 @@ function normalizeSymbol(input: string): string {
 function extractTicker(symbol: string): string {
   const idx = symbol.indexOf(":");
   return idx >= 0 ? symbol.slice(idx + 1) : symbol;
+}
+
+/** TradingView symbol names that differ from our tradable tickers */
+const TRADE_ALIASES: Record<string, string> = {
+  HDFCBANK: "HDFC",
+  ICICIBANK: "ICICI",
+  BAJFINANCE: "BAJAJ",
+  LTIM: "LT",
+};
+
+/** Returns a tradable ticker for a TradingView symbol, or null (e.g. indices) */
+function toTradableTicker(symbol: string): string | null {
+  const raw = extractTicker(symbol).toUpperCase();
+  const mapped = TRADE_ALIASES[raw] ?? raw;
+  return getStock(mapped) ? mapped : null;
 }
 
 const PANEL = {
@@ -182,7 +198,7 @@ function ChartPage() {
     setSymbol(query);
   };
 
-  const tradeTicker = extractTicker(symbol);
+  const tradeTicker = toTradableTicker(symbol);
 
   return (
     <div className="flex h-screen w-full flex-col bg-[#0f0f0f] text-[#d1d4dc]">
@@ -218,13 +234,23 @@ function ChartPage() {
           </button>
         </form>
 
-        <Link
-          to="/trade/$ticker"
-          params={{ ticker: tradeTicker }}
-          className="hidden h-7 items-center gap-1 rounded bg-[#26a69a] px-3 text-xs font-medium text-white hover:opacity-90 sm:inline-flex"
-        >
-          Trade This Stock <span aria-hidden>→</span>
-        </Link>
+        {tradeTicker ? (
+          <Link
+            to="/trade/$ticker"
+            params={{ ticker: tradeTicker }}
+            className="hidden h-7 items-center gap-1 rounded bg-[#26a69a] px-3 text-xs font-medium text-white hover:opacity-90 sm:inline-flex"
+          >
+            Trade This Stock <span aria-hidden>→</span>
+          </Link>
+        ) : (
+          <Link
+            to="/markets"
+            className="hidden h-7 items-center gap-1 rounded border border-[#2a2a2a] px-3 text-xs font-medium text-[#d1d4dc] hover:bg-[#2a2a2a] sm:inline-flex"
+            title="Indices aren't tradable — browse tradable stocks"
+          >
+            Browse Tradable Stocks <span aria-hidden>→</span>
+          </Link>
+        )}
         <button
           onClick={() => setPanelOpen((v) => !v)}
           className="ml-1 inline-flex h-7 items-center gap-1 rounded border border-[#2a2a2a] px-2 text-xs md:hidden"
