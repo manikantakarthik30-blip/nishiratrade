@@ -4,6 +4,7 @@ import { z } from "zod";
 import { fallback, zodValidator } from "@tanstack/zod-adapter";
 import { ArrowLeft, Rocket, Menu, X, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { getStock } from "@/lib/stocks";
 
 const SYMBOL_MAP: Record<string, string> = {
   NIFTY: "NSE:NIFTY",
