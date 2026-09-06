@@ -1,6 +1,6 @@
 # NISHIRA .TRADE
 
-Build a full-stack paper trading web app called "CosmicTrade" with the following pages and features:
+Build a full-stack paper trading web app called "Nishira.Trade" with the following pages and features:
 
 🎨 DESIGN THEME:
 - Clean and minimal UI with a deep space theme
